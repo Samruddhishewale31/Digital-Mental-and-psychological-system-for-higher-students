@@ -1,73 +1,245 @@
-# Welcome to your Lovable project
+# 🧠 Mindful Scholar Hub
 
-## Project info
+> **An AI-Powered Digital Mental Wellness Platform for Students**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Mindful Scholar Hub is a comprehensive mental wellness platform designed to support students through early mental health screening, emotional well-being tracking, and AI-assisted wellness features. The platform combines validated psychological assessment tools with AI-based facial and voice emotion analysis to provide personalized wellness recommendations while promoting ethical and responsible mental health support.
 
-## How can I edit this code?
+> **⚠️ Disclaimer:** This platform is intended for mental health screening and wellness support only. It is **not** a diagnostic or treatment tool and should not replace consultation with a qualified mental health professional.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🌟 Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 🔐 User Authentication
+- Secure Login & Registration
+- User Profile Management
+- Protected Dashboard
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📋 Mental Health Assessment
+- Informed Consent
+- CES-D Depression Assessment
+- GAD-7 Anxiety Assessment
+- Standardized Risk Assessment
+- Personalized Wellness Recommendations
 
-**Use your preferred IDE**
+### 🤖 AI-Based Emotional Analysis
+- Facial Emotion Recognition
+- Voice Emotion Analysis
+- Emotion Consistency Check
+- AI-Assisted Mental Wellness Report
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 📄 Mental Wellness Report
+- Anxiety & Depression Scores
+- Face Analysis Summary
+- Voice Analysis Summary
+- Overall Wellness Status
+- Personalized Recommendations
+- Downloadable PDF Report
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 📈 Progress Tracking
+- Assessment History
+- Mood Tracking
+- Progress Dashboard
+- Mental Wellness Trends
 
-Follow these steps:
+### 🌿 Wellness Hub
+- Guided Meditation
+- Soothing Music
+- Wellness Videos
+- Mental Health Resources
+- Positive Affirmations
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### ✍️ Self-Care Activities
+- Digital Journal
+- Mood Tracker
+- Draw Your Mood
+- Creative Doodling
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 🤝 Support Services
+- Counselor Referral
+- Counselor Appointment Booking
+- AI Wellness Chatbot
+- Smart Referral Recommendations
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 🔒 Privacy & Security
+- Informed Consent
+- Secure Data Storage
+- Confidential User Information
+- Ethical AI Practices
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+# 🏗️ Project Architecture
+
+```text
+                    User Login
+                         │
+                         ▼
+                 Informed Consent
+                         │
+                         ▼
+         Mental Health Assessment
+      ┌─────────────────────────────┐
+      │         CES-D               │
+      │         GAD-7               │
+      └─────────────────────────────┘
+                         │
+                         ▼
+       Face & Voice Emotion Analysis
+                         │
+                         ▼
+         Risk Assessment Engine
+                         │
+                         ▼
+      AI Mental Wellness Report
+                         │
+      ┌──────────────────────────────┐
+      │ Personalized Recommendations │
+      │ Wellness Hub                 │
+      │ Mood Tracking                │
+      │ Journal                      │
+      │ Assessment History           │
+      └──────────────────────────────┘
+                         │
+                         ▼
+            Counselor Referral
+```
+
+---
+
+# 💻 Tech Stack
+
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+
+### Backend
+- Supabase
+- PostgreSQL
+
+### AI & Machine Learning
+- OpenCV
+- DeepFace / FER
+- Speech Emotion Recognition
+- Python
+
+### Visualization
+- Chart.js / Recharts
+
+### Authentication
+- Supabase Authentication
+
+### Report Generation
+- jsPDF
+
+---
+
+# 📂 Project Structure
+
+```
+Mindful-Scholar-Hub/
+│
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── services/
+│   ├── utils/
+│   ├── assets/
+│   └── styles/
+│
+├── public/
+│
+├── supabase/
+│
+├── package.json
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+# 🚀 Getting Started
+
+## Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/mindful-scholar-hub.git
+```
+
+## Navigate to the Project
+
+```bash
+cd mindful-scholar-hub
+```
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Start Development Server
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+http://localhost:5173
+```
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# 🎯 Future Enhancements
 
-## What technologies are used for this project?
+- Real-Time Emotion Detection
+- AI-Based Mental Wellness Insights
+- Personalized Wellness Plans
+- Advanced Mood Analytics
+- Smart Notification System
+- Community Support Forum
+- Mobile Application
+- Wearable Device Integration
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# 👨‍💻 Team Members
 
-## How can I deploy this project?
+- **Samruddhi Shewale**
+- **Shrutika Tambe**
+- **Tanvi Minase**
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+# 📚 Research Basis
 
-Yes, you can!
+This project incorporates validated psychological screening tools and follows ethical guidelines for mental health applications.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Assessment Tools
+- **CES-D (Center for Epidemiologic Studies Depression Scale)** – Depression Screening
+- **GAD-7 (Generalized Anxiety Disorder-7)** – Anxiety Screening
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+These tools are used solely for **screening purposes** and are **not intended to provide a clinical diagnosis**.
+
+---
+
+# ⚖️ Ethical Considerations
+
+- User Informed Consent
+- Data Privacy & Confidentiality
+- Secure Storage of Assessment Data
+- AI Used as a Supportive Tool Only
+- Professional Counseling Recommended for Elevated Scores
+
+---
+
+
+---
+
+## 💙 "Supporting Student Well-being Through Ethical AI and Evidence-Based Mental Health Screening."
