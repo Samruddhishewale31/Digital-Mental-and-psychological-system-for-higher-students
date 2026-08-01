@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Plus, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,19 @@ const Journal = () => {
   const [selectedPrompt, setSelectedPrompt] = useState(prompts[0]);
   const [selectedMood, setSelectedMood] = useState(moods[0]);
   const [isWriting, setIsWriting] = useState(false);
+
+  useEffect(() => {
+  const savedEntries = localStorage.getItem("journalEntries");
+
+  if (savedEntries) {
+    setEntries(JSON.parse(savedEntries));
+  }
+}, []);
+
+// Save journal entries whenever they change
+useEffect(() => {
+  localStorage.setItem("journalEntries", JSON.stringify(entries));
+}, [entries]);
 
   const saveEntry = () => {
     if (!content.trim()) return;
