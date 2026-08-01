@@ -34,6 +34,11 @@ const Journal = () => {
   const [isWriting, setIsWriting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const wordCount = content.trim()
+  ? content.trim().split(/\s+/).length
+  : 0;
+
+const characterCount = content.length;
 
   useEffect(() => {
   const savedEntries = localStorage.getItem("journalEntries");
@@ -225,6 +230,15 @@ const filteredEntries = entries.filter((entry) =>
             className="w-full h-48 bg-transparent resize-none focus:outline-none text-foreground leading-relaxed placeholder:text-muted-foreground/50"
             autoFocus
           />
+          <div className="flex justify-end gap-4 text-sm text-muted-foreground mt-2">
+  <span>
+    Words: {wordCount}
+  </span>
+
+  <span>
+    Characters: {characterCount}
+  </span>
+</div>
 
 
           <div className="flex justify-between items-center mt-4">
