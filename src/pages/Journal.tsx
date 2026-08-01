@@ -33,7 +33,7 @@ const Journal = () => {
   const [selectedMood, setSelectedMood] = useState(moods[0]);
   const [isWriting, setIsWriting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
   const savedEntries = localStorage.getItem("journalEntries");
@@ -60,6 +60,12 @@ const editEntry = (entry: JournalEntry) => {
   setEditingId(entry.id);
   setIsWriting(true);
 };
+
+const filteredEntries = entries.filter((entry) =>
+  entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  entry.mood.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  entry.prompt.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const saveEntry = () => {
   if (!content.trim()) return;
@@ -116,6 +122,13 @@ const editEntry = (entry: JournalEntry) => {
         <p className="text-muted-foreground">
           A quiet space for your thoughts. Start whenever you're ready.
         </p>
+        <input
+  type="text"
+  placeholder="Search journal entries..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full mt-6 p-3 rounded-xl bg-card border focus:outline-none"
+/>
       </motion.div>
 
 
@@ -266,7 +279,7 @@ const editEntry = (entry: JournalEntry) => {
 
       {/* Journal Entries */}
 <AnimatePresence>
-  {entries.map((entry) => (
+  {filteredEntries.map((entry) => (
     <motion.div
       key={entry.id}
       initial={{ opacity: 0, y: 10 }}
