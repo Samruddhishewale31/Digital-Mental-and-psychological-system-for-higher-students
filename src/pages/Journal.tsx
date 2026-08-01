@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Plus, Calendar, Trash2 } from "lucide-react";
+import { BookOpen, Plus, Calendar, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface JournalEntry {
@@ -32,6 +32,8 @@ const Journal = () => {
   const [selectedPrompt, setSelectedPrompt] = useState(prompts[0]);
   const [selectedMood, setSelectedMood] = useState(moods[0]);
   const [isWriting, setIsWriting] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
 
   useEffect(() => {
   const savedEntries = localStorage.getItem("journalEntries");
@@ -51,9 +53,34 @@ const deleteEntry = (id: number) => {
   setEntries(updatedEntries);
 };
 
+const editEntry = (entry: JournalEntry) => {
+  setContent(entry.content);
+  setSelectedPrompt(entry.prompt);
+  setSelectedMood(entry.mood);
+  setEditingId(entry.id);
+  setIsWriting(true);
+};
+
   const saveEntry = () => {
-    if (!content.trim()) return;
-    
+  if (!content.trim()) return;
+
+  if (editingId !== null) {
+    const updatedEntries = entries.map((entry) =>
+      entry.id === editingId
+        ? {
+            ...entry,
+            content,
+            prompt: selectedPrompt,
+            mood: selectedMood,
+          }
+        : entry
+    );
+
+    setEntries(updatedEntries);
+    setEditingId(null);
+
+  } else {
+
     const entry: JournalEntry = {
       id: Date.now(),
       date: new Date().toLocaleDateString("en-US", {
@@ -68,9 +95,11 @@ const deleteEntry = (id: number) => {
     };
 
     setEntries([entry, ...entries]);
-    setContent("");
-    setIsWriting(false);
-  };
+  }
+
+  setContent("");
+  setIsWriting(false);
+};
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
@@ -251,14 +280,28 @@ const deleteEntry = (id: number) => {
           {entry.date}
         </div>
 
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => deleteEntry(entry.id)}
-        >
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete
-        </Button>
+        <div className="flex gap-2">
+
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={() => editEntry(entry)}
+  >
+    <Pencil className="w-4 h-4 mr-2" />
+    Edit
+  </Button>
+
+
+  <Button
+    variant="destructive"
+    size="sm"
+    onClick={() => deleteEntry(entry.id)}
+  >
+    <Trash2 className="w-4 h-4 mr-2" />
+    Delete
+  </Button>
+
+</div>
       </div>
 
       <p className="text-xs text-primary font-medium mb-2">
