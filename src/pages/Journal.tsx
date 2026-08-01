@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Plus, Calendar, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import jsPDF from "jspdf";
 
 interface JournalEntry {
   id: number;
@@ -66,6 +67,71 @@ const editEntry = (entry: JournalEntry) => {
   setIsWriting(true);
 };
 
+const exportPDF = () => {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("My Journal Entries", 10, 20);
+
+  let yPosition = 35;
+
+  entries.forEach((entry, index) => {
+    doc.setFontSize(12);
+
+    doc.text(
+      `Entry ${index + 1}`,
+      10,
+      yPosition
+    );
+
+    yPosition += 8;
+
+    doc.text(
+      `Date: ${entry.date}`,
+      10,
+      yPosition
+    );
+
+    yPosition += 8;
+
+    doc.text(
+      `Mood: ${entry.mood}`,
+      10,
+      yPosition
+    );
+
+    yPosition += 8;
+
+    doc.text(
+      `Prompt: ${entry.prompt}`,
+      10,
+      yPosition
+    );
+
+    yPosition += 8;
+
+    const contentLines = doc.splitTextToSize(
+      `Thoughts: ${entry.content}`,
+      180
+    );
+
+    doc.text(
+      contentLines,
+      10,
+      yPosition
+    );
+
+    yPosition += contentLines.length * 7 + 10;
+
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+  });
+
+  doc.save("My_Journal.pdf");
+};
+
 const filteredEntries = entries.filter((entry) =>
   entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
   entry.mood.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,6 +193,13 @@ const filteredEntries = entries.filter((entry) =>
         <p className="text-muted-foreground">
           A quiet space for your thoughts. Start whenever you're ready.
         </p>
+        <Button
+  className="mt-4"
+  onClick={exportPDF}
+  disabled={entries.length === 0}
+>
+  Export Journal as PDF
+</Button>
         <input
   type="text"
   placeholder="Search journal entries..."
