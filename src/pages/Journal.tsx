@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Plus, Calendar } from "lucide-react";
+import { BookOpen, Plus, Calendar, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface JournalEntry {
@@ -46,9 +46,14 @@ useEffect(() => {
   localStorage.setItem("journalEntries", JSON.stringify(entries));
 }, [entries]);
 
+const deleteEntry = (id: number) => {
+  const updatedEntries = entries.filter((entry) => entry.id !== id);
+  setEntries(updatedEntries);
+};
+
   const saveEntry = () => {
     if (!content.trim()) return;
-
+    
     const entry: JournalEntry = {
       id: Date.now(),
       date: new Date().toLocaleDateString("en-US", {
@@ -231,47 +236,45 @@ useEffect(() => {
 
 
       {/* Journal Entries */}
-      <AnimatePresence>
+<AnimatePresence>
+  {entries.map((entry) => (
+    <motion.div
+      key={entry.id}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      className="p-6 bg-card rounded-[20px] shadow-soft mb-4"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="w-4 h-4" />
+          {entry.date}
+        </div>
 
-        {entries.map((entry) => (
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => deleteEntry(entry.id)}
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Delete
+        </Button>
+      </div>
 
-          <motion.div
-            key={entry.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="p-6 bg-card rounded-[20px] shadow-soft mb-4"
-          >
+      <p className="text-xs text-primary font-medium mb-2">
+        {entry.prompt}
+      </p>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+      <p className="text-sm font-medium mb-2">
+        Mood: {entry.mood}
+      </p>
 
-              <Calendar className="w-4 h-4" />
-
-              {entry.date}
-
-            </div>
-
-
-            <p className="text-xs text-primary font-medium mb-2">
-              {entry.prompt}
-            </p>
-
-
-            <p className="text-sm mb-2">
-              Mood: {entry.mood}
-            </p>
-
-
-            <p className="text-foreground leading-relaxed whitespace-pre-wrap">
-              {entry.content}
-            </p>
-
-
-          </motion.div>
-
-        ))}
-
-      </AnimatePresence>
+      <p className="text-foreground leading-relaxed whitespace-pre-wrap">
+        {entry.content}
+      </p>
+    </motion.div>
+  ))}
+</AnimatePresence>
 
 
     </div>
