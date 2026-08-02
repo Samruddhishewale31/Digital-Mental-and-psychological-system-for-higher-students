@@ -3,77 +3,382 @@ import numpy as np
 import tempfile
 import os
 
-VOICE_SCORES = {
-    "calm": 0,
-    "happy": 0,
-    "neutral": 1,
-    "surprised": 1,
-    "sad": 3,
-    "angry": 3,
-    "disgust": 3,
-    "fearful": 4,
-}
 
-def map_to_wellbeing_cue(emotion):
-    if emotion in ["happy", "calm"]:
-        return "Positive / Calm Vocal Cue"
-    if emotion in ["neutral", "surprised"]:
-        return "Neutral Vocal Cue"
-    if emotion in ["sad", "disgust"]:
-        return "Negative Emotional Vocal Cue"
-    if emotion in ["angry", "fearful"]:
-        return "High Stress Vocal Cue"
-    return "General Emotional Vocal Cue"
 
-def extract_voice_features(audio_file):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_audio:
-        audio_file.save(temp_audio.name)
-        temp_path = temp_audio.name
+# ----------------------------------------
+# Pitch Analysis
+# ----------------------------------------
 
-    try:
-        audio, sample_rate = librosa.load(
-            temp_path,
-            sr=22050,
-            duration=3,
-            offset=0.0
+def analyze_pitch(audio_path):
+
+    y, sr = librosa.load(
+        audio_path,
+        sr=None
+    )
+
+
+    pitches, magnitudes = librosa.piptrack(
+        y=y,
+        sr=sr
+    )
+
+
+    pitch_values = []
+
+
+    for i in range(pitches.shape[1]):
+
+        index = np.argmax(
+            magnitudes[:, i]
         )
 
-        if audio is None or len(audio) == 0:
-            raise ValueError("Empty audio received")
+        pitch = pitches[index, i]
 
-        mfcc = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
-        mfcc_mean = np.mean(mfcc.T, axis=0)
 
-        chroma = librosa.feature.chroma_stft(y=audio, sr=sample_rate)
-        chroma_mean = np.mean(chroma.T, axis=0)
+        if pitch > 0:
+            pitch_values.append(pitch)
 
-        mel = librosa.feature.melspectrogram(y=audio, sr=sample_rate)
-        mel_mean = np.mean(mel.T, axis=0)
 
-        features = np.hstack([mfcc_mean, chroma_mean, mel_mean])
-        return features.reshape(1, -1)
 
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+    if len(pitch_values) == 0:
+        return 0
 
-def predict_voice_emotion(model, scaler, audio_file):
-    features = extract_voice_features(audio_file)
-    scaled_features = scaler.transform(features)
 
-    emotion = str(model.predict(scaled_features)[0])
+    return round(
+        float(np.mean(pitch_values)),
+        2
+    )
 
-    confidence = 0
-    if hasattr(model, "predict_proba"):
-        probabilities = model.predict_proba(scaled_features)[0]
-        confidence = float(np.max(probabilities)) * 100
 
-    score = VOICE_SCORES.get(emotion, 1)
-    wellbeing_cue = map_to_wellbeing_cue(emotion)
+
+# ----------------------------------------
+# Tone Analysis
+# ----------------------------------------
+
+def analyze_tone(audio_path):
+
+    y, sr = librosa.load(
+        audio_path,
+        sr=None
+    )
+
+
+    energy = np.mean(
+        librosa.feature.rms(
+            y=y
+        )
+    )
+
+
+    if energy < 0.02:
+        return "Low"
+
+    elif energy < 0.06:
+        return "Normal"
+
+    else:
+        return "High"
+
+
+
+# ----------------------------------------
+# Speaking Speed
+# ----------------------------------------
+
+def analyze_speed(audio_path):
+
+    y, sr = librosa.load(
+        audio_path,
+        sr=None
+    )
+
+
+    duration = librosa.get_duration(
+        y=y,
+        sr=sr
+    )
+
+
+    if duration == 0:
+        return 0
+
+
+    zero_crossings = librosa.feature.zero_crossing_rate(
+        y
+    )
+
+
+    activity = np.mean(
+        zero_crossings
+    )
+
+
+    words_estimate = int(
+        activity * 300
+    )
+
+
+    speed = words_estimate / duration
+
+
+    return round(
+        speed,
+        2
+    )
+
+
+
+# ----------------------------------------
+# Pause Detection
+# ----------------------------------------
+
+def analyze_pauses(audio_path):
+
+    y, sr = librosa.load(
+        audio_path,
+        sr=None
+    )
+
+
+    intervals = librosa.effects.split(
+        y,
+        top_db=30
+    )
+
+
+    total_audio = len(y) / sr
+
+
+    speech_time = sum(
+        [
+            (end-start)/sr
+            for start,end in intervals
+        ]
+    )
+
+
+    pause_time = total_audio - speech_time
+
+
+    return round(
+        pause_time,
+        2
+    )
+
+
+
+# ----------------------------------------
+# Hesitation Detection
+# ----------------------------------------
+
+def analyze_hesitation(audio_path):
+
+    pauses = analyze_pauses(
+        audio_path
+    )
+
+
+    if pauses > 3:
+
+        return "High"
+
+
+    elif pauses > 1:
+
+        return "Medium"
+
+
+    else:
+
+        return "Low"
+
+
+
+# ----------------------------------------
+# Voice Confidence
+# ----------------------------------------
+
+def analyze_confidence(audio_path):
+
+    y, sr = librosa.load(
+        audio_path,
+        sr=None
+    )
+
+
+    energy = np.mean(
+        librosa.feature.rms(
+            y=y
+        )
+    )
+
+
+    confidence = min(
+        energy * 1000,
+        100
+    )
+
+
+    return round(
+        float(confidence),
+        2
+    )
+
+
+
+# ----------------------------------------
+# Emotion / Wellbeing Logic
+# ----------------------------------------
+
+def generate_voice_emotion(features):
+
+
+    confidence = features["voice_confidence"]
+
+    tone = features["tone"]
+
+    hesitation = features["hesitation"]
+
+
+
+    if confidence < 30 and hesitation == "High":
+
+        emotion = "Stressed"
+
+        cue = "Low voice confidence and frequent pauses detected."
+
+
+    elif tone == "High" and hesitation == "Low":
+
+        emotion = "Energetic"
+
+        cue = "High vocal energy and confident speech detected."
+
+
+    elif tone == "Low":
+
+        emotion = "Calm"
+
+        cue = "Low vocal intensity detected."
+
+
+    else:
+
+        emotion = "Neutral"
+
+        cue = "Normal vocal pattern detected."
+
+
+
+    return emotion, cue
+
+
+
+# ----------------------------------------
+# MAIN FUNCTION USED BY FLASK
+# ----------------------------------------
+
+def predict_voice_emotion(audio_file):
+
+
+    temp = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".wav"
+    )
+
+
+    temp.close()
+
+
+
+    audio_file.save(
+        temp.name
+    )
+
+
+
+    features = {
+
+
+        "pitch":
+        analyze_pitch(
+            temp.name
+        ),
+
+
+        "tone":
+        analyze_tone(
+            temp.name
+        ),
+
+
+        "speaking_speed":
+        analyze_speed(
+            temp.name
+        ),
+
+
+        "pauses":
+        analyze_pauses(
+            temp.name
+        ),
+
+
+        "hesitation":
+        analyze_hesitation(
+            temp.name
+        ),
+
+
+        "voice_confidence":
+        analyze_confidence(
+            temp.name
+        )
+
+    }
+
+
+
+    emotion, cue = generate_voice_emotion(
+        features
+    )
+
+
+
+    # delete temporary file safely
+
+    try:
+
+        os.remove(
+            temp.name
+        )
+
+    except PermissionError:
+
+        pass
+
+
 
     return {
-        "voice_emotion": emotion,
-        "wellbeing_cue": wellbeing_cue,
-        "confidence": round(confidence, 2),
-        "voice_score": score
+
+
+        "voice_emotion":
+        emotion,
+
+
+        "wellbeing_cue":
+        cue,
+
+
+        "confidence":
+        features["voice_confidence"],
+
+
+        "voice_score":
+        features["voice_confidence"],
+
+
+        "features":
+        features
+
     }
