@@ -1,361 +1,595 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Brain,
+  RotateCcw,
+  Home
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
-const questions = [
-  "Over the past 2 weeks, how often have you felt little interest or pleasure in doing things?",
-  "How often have you felt down, depressed, or hopeless?",
-  "How often have you had trouble falling or staying asleep, or sleeping too much?",
-  "How often have you felt tired or had little energy?",
-  "How often have you had poor appetite or been overeating?",
-  "How often have you felt bad about yourself — or that you are a failure?",
-  "How often have you had trouble concentrating on academic work?",
-  "How often have you felt nervous, anxious, or on edge?",
-  "How often have you been unable to stop or control worrying?",
-  "How often have you felt overwhelmed by academic pressure or expectations?",
-];
+import QuestionCard from "@/components/QuestionCard";
+import ProgressBar from "@/components/ProgressBar";
 
-const options = [
-  { label: "Not at all", value: 0 },
-  { label: "Several days", value: 1 },
-  { label: "More than half the days", value: 2 },
-  { label: "Nearly every day", value: 3 },
-];
+import { questions, options } from "@/data/questions";
 
-const getResult = (score: number) => {
-  if (score <= 10) {
-    return {
-      level: "Low Emotional Distress",
-      color: "text-green-600 bg-green-100",
-      message:
-        "Your responses indicate low emotional distress. Continue maintaining a healthy routine and regular self-care.",
-      suggestions: [
-        "Maintain a proper sleep schedule",
-        "Continue journaling or mood tracking",
-        "Practice short breathing exercises",
-        "Stay connected with friends, mentors, or family",
-      ],
-    };
-  }
+import { calculateAssessment } from "@/utils/assessmentCalculator";
 
-  if (score <= 20) {
-    return {
-      level: "Moderate Emotional Distress",
-      color: "text-yellow-700 bg-yellow-100",
-      message:
-        "Your responses indicate moderate emotional distress. You may benefit from stress management, journaling, and regular monitoring.",
-      suggestions: [
-        "Practice breathing or meditation daily",
-        "Use journaling to express thoughts clearly",
-        "Break study tasks into smaller goals",
-        "Use stress-relief activities regularly",
-        "Consider talking to a mentor or counselor if symptoms continue",
-      ],
-    };
-  }
+import {
+  saveAssessment
+} from "@/utils/historyStorage";
 
-  return {
-    level: "High Emotional Distress",
-    color: "text-red-600 bg-red-100",
-    message:
-      "Your responses indicate high emotional distress. It is recommended to seek support from a counselor, trusted person, or mental health professional.",
-    suggestions: [
-      "Speak with a counselor or trusted person",
-      "Avoid handling everything alone",
-      "Use grounding and breathing exercises",
-      "Take breaks from academic pressure where possible",
-      "Seek professional counseling support",
-    ],
-  };
-};
+import { recommendations } from "@/data/recommendations";
 
 const SelfAssessment = () => {
+const navigate = useNavigate();
+  const [start, setStart] = useState(false);
+
   const [current, setCurrent] = useState(0);
+
   const [answers, setAnswers] = useState<number[]>(
     Array(questions.length).fill(-1)
   );
-  const [submitted, setSubmitted] = useState(false);
 
-  const handleAnswer = (value: number) => {
-    const newAnswers = [...answers];
-    newAnswers[current] = value;
-    setAnswers(newAnswers);
+  const [submitted, setSubmitted] =
+    useState(false);
+
+  const selectAnswer = (value: number) => {
+
+    const updated = [...answers];
+
+    updated[current] = value;
+
+    setAnswers(updated);
+
   };
 
-  const questionnaireScore = answers.reduce((a, b) => a + Math.max(b, 0), 0);
+  const result =
+    calculateAssessment(answers);
 
-  const analysisType = localStorage.getItem("analysis_type");
+  const supportRecommendations =
+    recommendations[result.riskLevel];
 
-  const faceScore = Number(localStorage.getItem("face_score") || 0);
-  const faceEmotion = localStorage.getItem("face_emotion");
+  const progress =
+    ((current + 1) / questions.length) * 100;
 
-  const voiceScore = Number(localStorage.getItem("voice_score") || 0);
-  const voiceEmotion = localStorage.getItem("voice_emotion");
-  const voiceCue = localStorage.getItem("voice_cue");
+  const riskColor = (() => {
 
-  let finalScore = questionnaireScore;
-  let combinedMode = false;
+    switch (result.riskLevel) {
 
-  if (analysisType === "face") {
-    finalScore = Math.round(0.75 * questionnaireScore + 0.25 * (faceScore * 7.5));
-    combinedMode = true;
-  }
+      case "Minimal Risk":
+        return "bg-green-100 text-green-700";
 
-  if (analysisType === "voice") {
-    finalScore = Math.round(0.75 * questionnaireScore + 0.25 * (voiceScore * 7.5));
-    combinedMode = true;
-  }
+      case "Mild Risk":
+        return "bg-yellow-100 text-yellow-700";
 
-  const result = getResult(finalScore);
+      case "Moderate Risk":
+        return "bg-orange-100 text-orange-700";
 
-  const clearCombinedData = () => {
-    localStorage.removeItem("analysis_type");
-    localStorage.removeItem("face_score");
-    localStorage.removeItem("face_emotion");
-    localStorage.removeItem("voice_score");
-    localStorage.removeItem("voice_emotion");
-    localStorage.removeItem("voice_cue");
+      default:
+        return "bg-red-100 text-red-700";
+
+    }
+
+  })();
+
+  const restartAssessment = () => {
+
+    setAnswers(
+      Array(questions.length).fill(-1)
+    );
+
+    setCurrent(0);
+
+    setSubmitted(false);
+
+    setStart(false);
+
   };
+
+  // =====================================
+  // RESULT PAGE
+  // =====================================
 
   if (submitted) {
+
     return (
-      <div className="container mx-auto px-4 py-16 flex justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-2xl w-full p-12 bg-card rounded-[32px] shadow text-center"
-        >
-          <CheckCircle className="w-16 h-16 text-primary mx-auto mb-6" />
+      <div className="container mx-auto px-5 py-12 flex justify-center">
 
-          <h2 className="text-3xl font-bold mb-4">
-            {combinedMode ? "Combined Wellbeing Result" : "Your Results"}
-          </h2>
+  <div className="max-w-5xl w-full bg-card rounded-3xl shadow-lg p-10">
 
-          <div
-            className={`inline-block px-6 py-2 rounded-full font-semibold text-lg mb-6 ${result.color}`}
-          >
-            {result.level}
-          </div>
+    {/* Header */}
 
-          <div className="text-left bg-muted/60 rounded-2xl p-5 mb-6 space-y-2">
-            <p>
-              <strong>Self Assessment Score:</strong> {questionnaireScore}/30
-            </p>
+    <div className="text-center">
 
-            {analysisType === "face" && (
-              <>
-                <p>
-                  <strong>Detected Face Emotion:</strong> {faceEmotion}
-                </p>
-                <p>
-                  <strong>Face Cue Score:</strong> {faceScore}/4
-                </p>
-              </>
-            )}
+      <CheckCircle
+        className="mx-auto text-green-600 mb-5"
+        size={70}
+      />
 
-            {analysisType === "voice" && (
-              <>
-                <p>
-                  <strong>Detected Voice Emotion:</strong> {voiceEmotion}
-                </p>
-                <p>
-                  <strong>Voice Wellbeing Cue:</strong> {voiceCue}
-                </p>
-                <p>
-                  <strong>Voice Cue Score:</strong> {voiceScore}/4
-                </p>
-              </>
-            )}
+      <h1 className="text-4xl font-bold">
 
-            <p>
-              <strong>Final Combined Score:</strong> {finalScore}/30
-            </p>
-          </div>
+        Mental Wellness Screening Report
 
-          <p className="text-muted-foreground text-lg mb-6">
-            {result.message}
-          </p>
+      </h1>
 
-          <div className="text-left mb-8">
-            <p className="text-sm font-medium mb-3 text-muted-foreground">
-              Recommended Actions:
-            </p>
+      <p className="mt-3 text-muted-foreground">
 
-            <ul className="list-disc list-inside space-y-2">
-              {result.suggestions.map((suggestion) => (
-                <li key={suggestion}>{suggestion}</li>
-              ))}
-            </ul>
-          </div>
+        Thank you for completing the assessment.
 
-          <p className="text-xs text-muted-foreground bg-muted/60 rounded-xl px-4 py-3 mb-6 leading-relaxed">
-            This system does not diagnose depression. Face and voice outputs are
-            used only as supporting emotional cues. The self-assessment score is
-            given higher importance for safer interpretation.
-          </p>
+      </p>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button
-              variant="soft"
-              onClick={() => alert("Try deep breathing for 5 minutes")}
-            >
-              Breathing Exercise
-            </Button>
+    </div>
 
-            <Button
-              variant="soft"
-              onClick={() => alert("Write your thoughts in a journal")}
-            >
-              Journaling
-            </Button>
+    {/* Overall Risk */}
 
-            <Button
-              variant="soft"
-              onClick={() => alert("Consult a counselor")}
-            >
-              Counselling
-            </Button>
+    <div className="mt-10 text-center">
 
-            <Button
-              variant="soft"
-              onClick={() => {
-                clearCombinedData();
-                window.location.href = "/";
-              }}
-            >
-              Back to Home
-            </Button>
-          </div>
-        </motion.div>
+      <h2 className="text-xl font-semibold">
+
+        Overall Screening Result
+
+      </h2>
+
+      <div
+        className={`inline-block mt-5 px-8 py-3 rounded-full text-lg font-bold ${riskColor}`}
+      >
+
+        {result.riskLevel}
+
       </div>
-    );
-  }
+
+    </div>
+
+    {/* Summary */}
+
+    <div className="mt-10 rounded-2xl bg-muted p-6">
+
+      <h3 className="font-bold text-lg">
+
+        Assessment Summary
+
+      </h3>
+
+      <p className="mt-4 leading-7 text-muted-foreground">
+
+        {result.summary}
+
+      </p>
+
+      <div className="mt-6 flex justify-between">
+
+        <span className="font-medium">
+
+          Overall Score
+
+        </span>
+
+        <span className="font-bold">
+
+          {result.totalScore}/30
+
+        </span>
+
+      </div>
+
+    </div>
+
+    {/* Emotional Indicators */}
+
+    <div className="mt-10">
+
+      <h2 className="text-2xl font-bold mb-6">
+
+        Emotional Wellbeing Indicators
+
+      </h2>
+
+      <ProgressBar
+
+        label="Low Mood Indicators"
+
+        value={result.depressionScore}
+
+        max={18}
+
+        color="bg-red-500"
+
+      />
+
+      <div className="mt-6">
+
+        <ProgressBar
+
+          label="Stress & Anxiety Indicators"
+
+          value={result.anxietyScore}
+
+          max={12}
+
+          color="bg-blue-500"
+
+        />
+
+      </div>
+
+    </div>
+
+    {/* Pattern */}
+
+    <div className="mt-10">
+
+      <h2 className="text-xl font-bold">
+
+        Primary Emotional Pattern
+
+      </h2>
+
+      <div className="mt-4 rounded-xl border bg-blue-50 border-blue-200 p-5">
+
+        <p>
+
+          {result.pattern}
+
+        </p>
+
+      </div>
+
+    </div>
+        {/* High Risk Alert */}
+
+    {result.riskLevel === "High Risk" && (
+
+      <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
+
+        <h2 className="text-xl font-bold text-red-700">
+
+          Professional Support Recommended
+
+        </h2>
+
+        <p className="mt-4 leading-7 text-red-700">
+
+          Your responses suggest a higher level of emotional distress.
+
+          This assessment is a screening tool only and is not a diagnosis.
+
+          We strongly encourage you to seek support from a qualified
+          mental health professional or speak with a trusted family
+          member, teacher or friend.
+
+        </p>
+
+      </div>
+
+    )}
+
+    {/* Recommendations */}
+
+    <div className="mt-10">
+
+      <h2 className="text-2xl font-bold mb-6">
+
+        Recommended Support
+
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-5">
+
+        {supportRecommendations.map((item) => (
+
+          <button
+            key={item.title}
+            onClick={() => navigate(item.link)}
+            className={`
+              p-5
+              rounded-2xl
+              border
+              text-left
+              transition-all
+              duration-300
+              hover:shadow-lg
+              hover:-translate-y-1
+              ${
+                item.title === "Professional Counselling"
+                  ? "border-red-400 bg-red-50"
+                  : ""
+              }
+            `}
+          >
+
+            <div className="text-4xl">
+
+              {item.icon}
+
+            </div>
+
+            <h3 className="font-bold text-lg mt-4">
+
+              {item.title}
+
+            </h3>
+
+            <p className="mt-3 text-muted-foreground leading-6">
+
+              {item.description}
+
+            </p>
+
+          </button>
+
+        ))}
+
+      </div>
+
+    </div>
+
+    {/* Motivation */}
+
+    <div className="mt-10 rounded-2xl border border-blue-200 bg-blue-50 p-6">
+
+      <h3 className="font-bold text-blue-700">
+
+        Remember
+
+      </h3>
+
+      <p className="mt-4 leading-7 text-blue-700">
+
+        Mental wellbeing changes over time.
+
+        Taking small steps like maintaining healthy routines,
+        talking to trusted people, practicing relaxation,
+        and monitoring your emotions can positively
+        impact your wellbeing.
+
+      </p>
+
+    </div>
+
+    {/* Disclaimer */}
+
+    <div className="mt-10 rounded-xl bg-muted p-5 text-sm leading-7">
+
+      <strong>Disclaimer</strong>
+
+      <br /><br />
+
+      This assessment is intended for educational and screening
+      purposes only.
+
+      It does not diagnose depression, anxiety or any other
+      mental health condition.
+
+      If your emotional distress becomes severe or persists,
+      please consult a qualified mental health professional.
+
+    </div>
+
+    {/* Buttons */}
+
+    <div className="flex justify-center gap-4 mt-10">
+
+      <Button
+        variant="outline"
+        onClick={restartAssessment}
+      >
+
+        <RotateCcw className="mr-2 h-4 w-4" />
+
+        Retake Assessment
+
+      </Button>
+
+      <Button
+  onClick={() => navigate("/")}
+>
+  <Home className="mr-2 h-4 w-4" />
+  Back To Home
+</Button>
+
+    </div>
+
+  </div>
+
+</div>
+
+  );
+
+}
+// =====================================
+// INTRODUCTION PAGE
+// =====================================
+
+if (!start) {
 
   return (
-    <div className="container mx-auto px-4 py-16 flex justify-center">
-      <div className="max-w-2xl w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+
+    <div className="container mx-auto py-20 flex justify-center">
+
+      <div className="max-w-3xl w-full bg-card rounded-3xl shadow-lg p-12 text-center">
+
+        <Brain
+          className="mx-auto text-primary mb-6"
+          size={70}
+        />
+
+        <h1 className="text-4xl font-bold">
+
+          Student Mental Health Assessment
+
+        </h1>
+
+        <p className="mt-6 text-muted-foreground leading-8">
+
+          This mental wellness screening is designed for college
+          students and is inspired by validated mental health
+          screening questionnaires.
+
+          It helps identify possible emotional wellbeing concerns
+          related to stress, low mood, anxiety and academic pressure.
+
+        </p>
+
+        
+
+        <Button
+
+          size="lg"
+
+          className="mt-10"
+
+          onClick={() => setStart(true)}
+
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Self Assessment
-          </h1>
 
-          {analysisType === "face" && (
-            <p className="text-muted-foreground">
-              Face analysis is completed. Now answer this self-assessment to
-              generate your combined wellbeing result.
-            </p>
-          )}
+          Start Assessment
 
-          {analysisType === "voice" && (
-            <p className="text-muted-foreground">
-              Voice analysis is completed. Now answer this self-assessment to
-              generate your combined wellbeing result.
-            </p>
-          )}
+        </Button>
 
-          {!analysisType && (
-            <p className="text-muted-foreground">
-              Answer honestly — there are no wrong answers.
-            </p>
-          )}
-        </motion.div>
+      </div>
 
-        {combinedMode && (
-          <div className="mb-6 rounded-2xl bg-primary/10 p-4 text-sm">
-            {analysisType === "face" && (
-              <p>
-                Face cue detected: <strong>{faceEmotion}</strong>. This will be
-                combined with your self-assessment.
-              </p>
-            )}
+    </div>
 
-            {analysisType === "voice" && (
-              <p>
-                Voice cue detected: <strong>{voiceCue}</strong>. This will be
-                combined with your self-assessment.
-              </p>
-            )}
-          </div>
-        )}
+  );
 
-        <div className="mb-8">
-          <div className="flex justify-between text-sm text-muted-foreground mb-2">
-            <span>
-              Question {current + 1} of {questions.length}
-            </span>
-            <span>
-              {Math.round(((current + 1) / questions.length) * 100)}%
-            </span>
-          </div>
+}
+// =====================================
+// QUESTION SCREEN
+// =====================================
 
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary"
-              animate={{
-                width: `${((current + 1) / questions.length) * 100}%`,
-              }}
-            />
-          </div>
-        </div>
+return (
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="p-8 bg-card rounded-[32px]"
-          >
-            <p className="text-lg font-medium mb-6">{questions[current]}</p>
+  <div className="container mx-auto py-16 flex justify-center">
 
-            {options.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => handleAnswer(opt.value)}
-                className={`w-full text-left px-5 py-3 mb-2 rounded-xl border ${
-                  answers[current] === opt.value
-                    ? "bg-primary/10 border-primary"
-                    : "border-gray-300"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+    <div className="max-w-2xl w-full">
 
-        <div className="flex justify-between mt-6">
+      {/* Progress */}
+
+      <div className="flex justify-between items-center mb-3">
+
+        <span className="font-medium">
+
+          Question {current + 1} of {questions.length}
+
+        </span>
+
+        <span className="font-semibold text-primary">
+
+          {Math.round(progress)}%
+
+        </span>
+
+      </div>
+
+      <ProgressBar
+
+        value={current + 1}
+
+        max={questions.length}
+
+        color="bg-primary"
+
+        showScore={false}
+
+      />
+
+      {/* Question Card */}
+
+      <div className="mt-8">
+
+        <QuestionCard
+
+          question={questions[current].text}
+
+          options={options}
+
+          selectedAnswer={answers[current]}
+
+          onSelect={selectAnswer}
+
+        />
+
+      </div>
+
+      {/* Navigation Buttons */}
+
+      <div className="flex justify-between mt-8">
+
+        <Button
+
+          variant="outline"
+
+          disabled={current === 0}
+
+          onClick={() => setCurrent(current - 1)}
+
+        >
+
+          <ArrowLeft className="mr-2 h-4 w-4" />
+
+          Back
+
+        </Button>
+
+        {current < questions.length - 1 ? (
+
           <Button
-            onClick={() => setCurrent(Math.max(0, current - 1))}
-            disabled={current === 0}
+
+            disabled={answers[current] === -1}
+
+            onClick={() => setCurrent(current + 1)}
+
           >
-            <ArrowLeft /> Back
+
+            Next
+
+            <ArrowRight className="ml-2 h-4 w-4" />
+
           </Button>
 
-          {current < questions.length - 1 ? (
-            <Button
-              onClick={() => setCurrent(current + 1)}
-              disabled={answers[current] === -1}
-            >
-              Next <ArrowRight />
-            </Button>
-          ) : (
-            <Button
-              onClick={() => setSubmitted(true)}
-              disabled={answers.some((a) => a === -1)}
-            >
-              Submit
-            </Button>
-          )}
-        </div>
+        ) : (
+
+          <Button
+
+            disabled={answers.includes(-1)}
+
+            onClick={() => {
+
+              saveAssessment(result);
+
+              setSubmitted(true);
+
+            }}
+
+          >
+
+            Submit Assessment
+
+          </Button>
+
+        )}
+
       </div>
+
+      {/* Progress Text */}
+
+      <div className="mt-8 text-center text-sm text-muted-foreground">
+
+        {answers.filter((answer) => answer !== -1).length} of{" "}
+        {questions.length} questions completed
+
+      </div>
+
     </div>
-  );
+
+  </div>
+
+);
 };
 
 export default SelfAssessment;

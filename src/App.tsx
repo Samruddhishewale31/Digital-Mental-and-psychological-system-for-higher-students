@@ -16,7 +16,9 @@ import FaceAnalysis from "./pages/FaceAnalysis";
 import VoiceAnalysis from "./pages/VoiceAnalysis";
 import FaceCombinedAnalysis from "./pages/FaceCombinedAnalysis";
 import VoiceCombinedAnalysis from "./pages/VoiceCombinedAnalysis";
-
+import MoodTracker from "./pages/MoodTracker";
+import RelaxingMusic from "./pages/RelaxingMusic";
+import StressReliefVideos from "./pages/StressReliefVideos";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +42,9 @@ const App = () => (
           <Route path="/voice-analysis" element={<VoiceAnalysis />} />
           <Route path="/face-combined" element={<FaceCombinedAnalysis />} />
           <Route path="/voice-combined" element={<VoiceCombinedAnalysis />} />
-          
+          <Route path="/mood-tracker" element={<MoodTracker/>}/>
+          <Route path="/relaxing-music" element={<RelaxingMusic />} />
+          <Route path="/stress-relief-videos"element={<StressReliefVideos />}/>
           
         </Routes>
       </BrowserRouter>

@@ -1,6 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wind, Eye, Zap, X } from "lucide-react";
+import {
+  Wind,
+  Eye,
+  Zap,
+  X,
+  ArrowLeft
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tools = [
@@ -50,10 +57,25 @@ const tools = [
 ];
 
 const StressRelief = () => {
+  const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">
+      <div className="mb-8">
+
+  <Button
+    variant="outline"
+    onClick={() => navigate(-1)}
+  >
+
+    <ArrowLeft className="mr-2 h-4 w-4" />
+
+    Back to Assessment
+
+  </Button>
+
+</div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 text-center">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">Stress Relief Tools</h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">Quick exercises to help you breathe, reset, and refocus.</p>
