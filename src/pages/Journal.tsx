@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Plus, Calendar } from "lucide-react";
+import {
+  BookOpen,
+  Plus,
+  Calendar,
+  ArrowLeft,
+  Home,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 interface JournalEntry {
@@ -18,6 +25,7 @@ const prompts = [
 ];
 
 const Journal = () => {
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [content, setContent] = useState("");
   const [selectedPrompt, setSelectedPrompt] = useState(prompts[0]);
@@ -38,6 +46,20 @@ const Journal = () => {
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
+      <div className="mb-8">
+
+  <Button
+    variant="outline"
+    onClick={() => navigate(-1)}
+  >
+
+    <ArrowLeft className="mr-2 h-4 w-4" />
+
+    Back to Assessment
+
+  </Button>
+
+</div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Journal</h1>
         <p className="text-muted-foreground">A quiet space for your thoughts. Start whenever you're ready.</p>
@@ -99,6 +121,30 @@ const Journal = () => {
       )}
 
       <AnimatePresence>
+        <div className="flex justify-center gap-4 mt-10">
+
+  <Button
+    variant="outline"
+    onClick={() => navigate(-1)}
+  >
+
+    <ArrowLeft className="mr-2 h-4 w-4" />
+
+    Back to Assessment
+
+  </Button>
+
+  <Button
+    onClick={() => navigate("/")}
+  >
+
+    <Home className="mr-2 h-4 w-4" />
+
+    Back Home
+
+  </Button>
+
+</div>
         {entries.map((entry) => (
           <motion.div
             key={entry.id}
