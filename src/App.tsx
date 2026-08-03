@@ -13,7 +13,6 @@ import AIChat from "./pages/AIChat";
 import Journal from "./pages/Journal";
 import StressRelief from "./pages/StressRelief";
 import CounsellingBooking from "./pages/CounsellingBooking";
-import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 import FaceAnalysis from "./pages/FaceAnalysis";
@@ -21,130 +20,98 @@ import VoiceAnalysis from "./pages/VoiceAnalysis";
 import FaceCombinedAnalysis from "./pages/FaceCombinedAnalysis";
 import VoiceCombinedAnalysis from "./pages/VoiceCombinedAnalysis";
 
-import ProtectedRoute from "@/components/ProtectedRoute";
-
 
 const queryClient = new QueryClient();
 
 
 const App = () => (
 
-<QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
 
-<TooltipProvider>
+    <TooltipProvider>
 
+      <Toaster />
 
-<Toaster />
-
-<Sonner />
-
-
-<Navbar />
+      <Sonner />
 
 
-<Routes>
+      <Navbar />
 
 
-<Route 
-path="/" 
-element={<Index />} 
-/>
+      <Routes>
+
+        <Route 
+          path="/" 
+          element={<Index />} 
+        />
 
 
-
-<Route 
-path="/assessment" 
-element={<SelfAssessment />} 
-/>
-
+        <Route 
+          path="/assessment" 
+          element={<SelfAssessment />} 
+        />
 
 
-<Route 
-path="/chat" 
-element={<AIChat />} 
-/>
+        <Route 
+          path="/chat" 
+          element={<AIChat />} 
+        />
 
 
-
-<Route
-
-path="/journal"
-
-element={
-
-<ProtectedRoute>
-
-<Journal />
-
-</ProtectedRoute>
-
-}
-
-/>
+        <Route 
+          path="/journal" 
+          element={<Journal />} 
+        />
 
 
-
-<Route 
-path="/stress-relief" 
-element={<StressRelief />} 
-/>
-
+        <Route 
+          path="/stress-relief" 
+          element={<StressRelief />} 
+        />
 
 
-<Route 
-path="/counselling" 
-element={<CounsellingBooking />} 
-/>
+        <Route 
+          path="/counselling" 
+          element={<CounsellingBooking />} 
+        />
 
 
-
-<Route 
-path="/auth" 
-element={<Auth />} 
-/>
-
+        <Route 
+          path="/face-analysis" 
+          element={<FaceAnalysis />} 
+        />
 
 
-<Route 
-path="/face-analysis" 
-element={<FaceAnalysis />} 
-/>
+        <Route 
+          path="/voice-analysis" 
+          element={<VoiceAnalysis />} 
+        />
 
 
-
-<Route 
-path="/voice-analysis" 
-element={<VoiceAnalysis />} 
-/>
-
+        <Route 
+          path="/face-combined" 
+          element={<FaceCombinedAnalysis />} 
+        />
 
 
-<Route 
-path="/face-combined" 
-element={<FaceCombinedAnalysis />} 
-/>
+        <Route 
+          path="/voice-combined" 
+          element={<VoiceCombinedAnalysis />} 
+        />
 
 
-
-<Route 
-path="/voice-combined" 
-element={<VoiceCombinedAnalysis />} 
-/>
-
+        <Route 
+          path="*" 
+          element={<NotFound />} 
+        />
 
 
-<Route 
-path="*" 
-element={<NotFound />} 
-/>
+      </Routes>
 
 
-</Routes>
+    </TooltipProvider>
 
-
-</TooltipProvider>
-
-</QueryClientProvider>
+  </QueryClientProvider>
 
 );
 
