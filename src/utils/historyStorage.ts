@@ -14,7 +14,11 @@ export const saveAssessment = (
   result: AssessmentResult
 ) => {
 
+  console.log("saveAssessment called");
+
   const history = getAssessmentHistory();
+
+  console.log("Current History:", history);
 
   const newAssessment: AssessmentHistoryItem = {
     ...result,
@@ -22,11 +26,18 @@ export const saveAssessment = (
     date: new Date().toLocaleString(),
   };
 
+  console.log("Saving:", newAssessment);
+
   history.unshift(newAssessment);
 
   localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(history)
+  );
+
+  console.log(
+    "After Save:",
+    localStorage.getItem(STORAGE_KEY)
   );
 };
 

@@ -1,11 +1,13 @@
 import {
   Music,
   PlayCircle,
+  Wind,
+  Home,
   ArrowLeft
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
-
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 const musicList = [
@@ -67,22 +69,41 @@ const musicList = [
 export default function RelaxingMusic() {
 
   const navigate = useNavigate();
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
+}, []);
 
   return (
      <div className="container mx-auto py-12 px-5">
 
   <div className="mb-8">
 
-    <Button
-      variant="outline"
-      onClick={() => navigate(-1)}
-    >
+    <div className="flex justify-between items-center flex-wrap gap-4 mb-8">
 
-      <ArrowLeft className="mr-2 h-4 w-4" />
+  <Button
+    variant="outline"
+    onClick={() =>
+      navigate("/assessment", {
+        state: {
+          fromAssessment: true,
+        },
+      })
+    }
+  >
+    <ArrowLeft className="mr-2 h-4 w-4" />
+    Back to Assessment
+  </Button>
 
-      Back to Assessment
+  <Button onClick={() => navigate("/")}>
+    <Home className="mr-2 h-4 w-4" />
+    Back Home
+  </Button>
 
-    </Button>
+</div>
 
   </div>
 
