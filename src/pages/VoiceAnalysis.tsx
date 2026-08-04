@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Music2,
   Mic,
@@ -43,6 +44,7 @@ type VoiceResult = {
 
 
 const VoiceAnalysis = () => {
+  const navigate = useNavigate();
 
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -268,6 +270,27 @@ const VoiceAnalysis = () => {
     const resultData = json.data ?? json;
 
     setResult(resultData);
+
+    // Save voice data for final report
+localStorage.setItem(
+  "voice_score",
+  String(resultData.voice_score)
+);
+
+localStorage.setItem(
+  "voice_emotion",
+  resultData.voice_emotion
+);
+
+localStorage.setItem(
+  "voice_confidence",
+  String(resultData.confidence)
+);
+
+localStorage.setItem(
+  "wellbeing_cue",
+  resultData.wellbeing_cue
+);
 
   } catch (error) {
 
@@ -610,6 +633,24 @@ a psychological diagnosis.
 
 </p>
 
+<div className="mt-8 rounded-xl bg-purple-700 p-6 text-center text-white">
+
+  <h3 className="text-xl font-semibold">
+    Voice Analysis Completed Successfully
+  </h3>
+
+  <p className="mt-2 text-purple-100">
+    Click below to generate your complete wellbeing report.
+  </p>
+
+  <button
+    onClick={() => navigate("/complete-analysis")}
+    className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
+  >
+    View Complete Analysis →
+  </button>
+
+</div>
 
 </div>
 

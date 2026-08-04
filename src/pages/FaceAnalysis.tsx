@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
 
 type FaceResult = {
@@ -23,6 +24,7 @@ const videoConstraints = {
 
 export default function FaceAnalysis() {
   const webcamRef = useRef<Webcam | null>(null);
+  const navigate = useNavigate();
 
 
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -131,7 +133,8 @@ setResult(data);
   String(data.faces_detected)
 );
 
-// Stay on Face Analysis page
+// Face analysis completed successfully
+// User can now continue to voice analysis
     } catch (err) {
       console.error(err);
       alert("Unable to analyze face.");
@@ -440,17 +443,24 @@ setResult(data);
 
             {/* Redirect Box */}
 
-            <div className="mt-8 rounded-xl bg-purple-700 p-5 text-center text-white">
+           <div className="mt-8 rounded-xl bg-purple-700 p-6 text-center text-white">
 
-              <h3 className="text-xl font-semibold">
-                Face Analysis Completed Successfully
-              </h3>
+  <h3 className="text-xl font-semibold">
+    Face Analysis Completed Successfully
+  </h3>
 
-              {/* <p className="mt-2 text-purple-100">
-                Redirecting to Self Assessment...
-              </p> */}
+  <p className="mt-2 text-purple-100">
+    Continue to the Voice Analysis to complete your wellbeing assessment.
+  </p>
 
-            </div>
+  <button
+    onClick={() => navigate("/voice-analysis")}
+    className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
+  >
+    Continue to Voice Analysis →
+  </button>
+
+</div>
 
           </div>
         )}

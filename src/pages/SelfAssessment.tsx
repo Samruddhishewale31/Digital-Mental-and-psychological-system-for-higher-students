@@ -328,34 +328,31 @@ We recommend scheduling a consultation with a qualified mental health profession
 
         {supportRecommendations.map((item) => (
 
-          <button
-            key={item.title}
-           onClick={() => {
-  console.log("Title:", item.title);
-  console.log("Link:", item.link);
-
-  navigate(item.link, {
-    state: {
-      fromAssessment: true,
-    },
-  });
-}}
-            className={`
-              p-5
-              rounded-2xl
-              border
-              text-left
-              transition-all
-              duration-300
-              hover:shadow-lg
-              hover:-translate-y-1
-              ${
-                item.title === "Professional Counselling"
-                  ? "border-red-400 bg-red-50"
-                  : ""
-              }
-            `}
-          >
+    <button
+  key={item.title}
+  onClick={() =>
+    navigate(item.link, {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+  className={`
+    p-5
+    rounded-2xl
+    border
+    text-left
+    transition-all
+    duration-300
+    hover:shadow-lg
+    hover:-translate-y-1
+    ${
+      item.title === "Professional Counselling"
+        ? "border-red-400 bg-red-50"
+        : ""
+    }
+  `}
+>
 
             <div className="text-4xl">
 
@@ -612,7 +609,6 @@ return (
           <Button
   disabled={answers.includes(-1)}
   onClick={() => {
-
     const finalResult = calculateAssessment(answers);
 
     saveAssessment(finalResult);
@@ -627,9 +623,18 @@ return (
       "true"
     );
 
+    localStorage.setItem(
+      "questionnaire_score",
+      String(finalResult.totalScore)
+    );
+
+    localStorage.setItem(
+      "questionnaire_risk",
+      finalResult.riskLevel
+    );
+
     setStart(true);
     setSubmitted(true);
-
   }}
 >
   Submit Assessment

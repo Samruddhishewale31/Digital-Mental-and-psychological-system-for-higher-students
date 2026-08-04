@@ -5,10 +5,8 @@ import os
 import tensorflow as tf
 import joblib
 
-
 from utils.voice_utils import predict_voice_emotion
 from utils.face_utils import predict_face_emotion
-
 
 
 app = Flask(__name__)
@@ -39,11 +37,8 @@ VOICE_SCALER_PATH = os.path.join(
 
 
 face_model = None
-
 voice_model = None
-
 voice_scaler = None
-
 
 
 
@@ -57,7 +52,7 @@ try:
         FACE_MODEL_PATH
     )
 
-    print("Face model loaded successfully.")
+    print("Face model loaded successfully")
 
 except Exception as e:
 
@@ -80,7 +75,7 @@ try:
         VOICE_SCALER_PATH
     )
 
-    print("Voice model loaded successfully.")
+    print("Voice model loaded successfully")
 
 
 except Exception as e:
@@ -90,17 +85,16 @@ except Exception as e:
 
 
 
-
 # ==========================================
-# Home Route
+# HOME
 # ==========================================
 
-@app.route("/", methods=["GET"])
+@app.route("/")
 def home():
 
     return jsonify({
 
-        "status": "success",
+        "status":"success",
 
         "message":
         "Mental Wellness AI Backend Running"
@@ -112,15 +106,13 @@ def home():
 
 
 # ==========================================
-# Health Check
+# HEALTH CHECK
 # ==========================================
 
-@app.route("/health", methods=["GET"])
+@app.route("/health")
 def health():
 
     return jsonify({
-
-        "status": "success",
 
         "face_model_loaded":
         face_model is not None,
@@ -128,7 +120,6 @@ def health():
 
         "voice_model_loaded":
         voice_model is not None
-        and voice_scaler is not None
 
     })
 
@@ -136,35 +127,22 @@ def health():
 
 
 
+
 # ==========================================
-# Face Prediction API
+# FACE ANALYSIS
 # ==========================================
 
 @app.route("/predict-face", methods=["POST"])
 def predict_face():
 
 
-    if face_model is None:
-
-        return jsonify({
-
-            "status": "error",
-
-            "message":
-            "Face model could not be loaded."
-
-        }),500
-
-
-
     if "image" not in request.files:
 
         return jsonify({
 
-            "status": "error",
+            "status":"error",
 
-            "message":
-            "No image uploaded."
+            "message":"No image uploaded"
 
         }),400
 
@@ -172,11 +150,10 @@ def predict_face():
 
     try:
 
-        image = request.files["image"]
+        image=request.files["image"]
 
 
-
-        result = predict_face_emotion(
+        result=predict_face_emotion(
 
             face_model,
 
@@ -185,14 +162,11 @@ def predict_face():
         )
 
 
-
         return jsonify({
 
-            "status":
-            "success",
+            "status":"success",
 
-            "data":
-            result
+            "data":result
 
         })
 
@@ -200,19 +174,14 @@ def predict_face():
 
     except Exception as e:
 
-        print(
-            "FACE ERROR:",
-            e
-        )
+        print("FACE ERROR:",e)
 
 
         return jsonify({
 
-            "status":
-            "error",
+            "status":"error",
 
-            "message":
-            str(e)
+            "message":str(e)
 
         }),500
 
@@ -220,55 +189,36 @@ def predict_face():
 
 
 
+
 # ==========================================
-# Voice Prediction API
+# VOICE ANALYSIS
 # ==========================================
+
 
 @app.route("/predict-voice", methods=["POST"])
 def predict_voice():
 
 
-
-    if voice_model is None or voice_scaler is None:
-
-
-        return jsonify({
-
-            "status":
-            "error",
-
-            "message":
-            "Voice model could not be loaded."
-
-        }),500
-
-
-
-
     if "audio" not in request.files:
 
-
         return jsonify({
 
-            "status":
-            "error",
+            "status":"error",
 
-            "message":
-            "No audio uploaded."
+            "message":"No audio uploaded"
 
         }),400
-
 
 
 
     try:
 
 
-        audio = request.files["audio"]
+        audio=request.files["audio"]
 
 
 
-        result = predict_voice_emotion(
+        result=predict_voice_emotion(
 
             voice_model,
 
@@ -282,11 +232,9 @@ def predict_voice():
 
         return jsonify({
 
-            "status":
-            "success",
+            "status":"success",
 
-            "data":
-            result
+            "data":result
 
         })
 
@@ -295,19 +243,14 @@ def predict_voice():
     except Exception as e:
 
 
-        print(
-            "VOICE ERROR:",
-            e
-        )
+        print("VOICE ERROR:",e)
 
 
         return jsonify({
 
-            "status":
-            "error",
+            "status":"error",
 
-            "message":
-            str(e)
+            "message":str(e)
 
         }),500
 
@@ -315,9 +258,12 @@ def predict_voice():
 
 
 
+
+
 # ==========================================
-# Final Risk Assessment
+# COMPLETE ANALYSIS
 # ==========================================
+
 
 @app.route("/final-risk", methods=["POST"])
 def final_risk():
@@ -326,11 +272,11 @@ def final_risk():
     try:
 
 
-        data = request.get_json()
+        data=request.get_json()
 
 
 
-        questionnaire_score = float(
+        questionnaire_score=float(
             data.get(
                 "questionnaire_score",
                 0
@@ -338,7 +284,7 @@ def final_risk():
         )
 
 
-        face_score = float(
+        face_score=float(
             data.get(
                 "face_score",
                 0
@@ -346,7 +292,7 @@ def final_risk():
         )
 
 
-        voice_score = float(
+        voice_score=float(
             data.get(
                 "voice_score",
                 0
@@ -355,73 +301,99 @@ def final_risk():
 
 
 
-        final_score = (
+        # Convert to percentage
 
-            (0.6 * questionnaire_score)
 
+        questionnaire_percentage = (
+            questionnaire_score / 30
+        ) * 100
+
+
+
+        face_percentage = (
+            face_score / 4
+        ) * 100
+
+
+
+        voice_percentage = (
+            voice_score / 10
+        ) * 100
+
+
+
+
+        # WEIGHTS
+
+        questionnaire_weighted = (
+            questionnaire_percentage * 0.60
+        )
+
+
+        face_weighted = (
+            face_percentage * 0.20
+        )
+
+
+        voice_weighted = (
+            voice_percentage * 0.20
+        )
+
+
+
+        final_score = round(
+
+            questionnaire_weighted
             +
-
-            (0.2 * face_score)
-
+            face_weighted
             +
+            voice_weighted,
 
-            (0.2 * voice_score)
+            2
 
         )
 
 
 
 
-        if final_score <= 7:
+        if final_score < 30:
 
 
-            risk_level = (
-                "Low Emotional Distress"
-            )
+            risk="Low Risk"
 
 
-            recommendation = (
-
-                "Continue maintaining a healthy lifestyle, "
-                "regular sleep, exercise, and self-care practices."
-
-            )
+            recommendation="""
+            Your emotional wellbeing indicators appear stable.
+            Continue healthy routines, sleep, exercise and self-care.
+            """
 
 
 
-        elif final_score <= 14:
+        elif final_score < 60:
 
 
-
-            risk_level = (
-                "Moderate Emotional Distress"
-            )
+            risk="Moderate Risk"
 
 
-            recommendation = (
-
-                "Practice breathing exercises, meditation, "
-                "journaling, and continue monitoring your wellbeing."
-
-            )
+            recommendation="""
+            Some emotional distress indicators are present.
+            Consider meditation, journaling, relaxation activities
+            and regular wellbeing monitoring.
+            """
 
 
 
         else:
 
 
-
-            risk_level = (
-                "High Emotional Distress"
-            )
+            risk="High Risk"
 
 
-            recommendation = (
-
-                "Your assessment indicates elevated emotional distress. "
-                "Please consider consulting a qualified mental health professional."
-
-            )
+            recommendation="""
+            Elevated emotional distress indicators detected.
+            Consider reaching out to a qualified mental health
+            professional for support.
+            """
 
 
 
@@ -429,16 +401,58 @@ def final_risk():
         return jsonify({
 
 
-            "status":
-            "success",
+            "status":"success",
 
 
-            "final_score":
-            round(final_score,2),
+
+            "questionnaire":{
+
+                "percentage":
+                round(questionnaire_percentage,2),
+
+                "weightage":60,
+
+                "weighted_score":
+                round(questionnaire_weighted,2)
+
+            },
+
+
+
+            "face":{
+
+                "percentage":
+                round(face_percentage,2),
+
+                "weightage":20,
+
+                "weighted_score":
+                round(face_weighted,2)
+
+            },
+
+
+
+            "voice":{
+
+                "percentage":
+                round(voice_percentage,2),
+
+                "weightage":20,
+
+                "weighted_score":
+                round(voice_weighted,2)
+
+            },
+
+
+
+            "overall_score":
+            final_score,
 
 
             "risk_level":
-            risk_level,
+            risk,
 
 
             "recommendation":
@@ -446,10 +460,7 @@ def final_risk():
 
 
             "disclaimer":
-
-            "This platform provides mental health screening and wellness "
-            "support only. It does not diagnose medical or psychological "
-            "conditions."
+            "AI analysis provides supportive emotional indicators only and is not a medical diagnosis."
 
         })
 
@@ -458,19 +469,14 @@ def final_risk():
     except Exception as e:
 
 
-        print(
-            "FINAL RISK ERROR:",
-            e
-        )
+        print("FINAL ERROR:",e)
 
 
         return jsonify({
 
-            "status":
-            "error",
+            "status":"error",
 
-            "message":
-            str(e)
+            "message":str(e)
 
         }),500
 
@@ -479,11 +485,17 @@ def final_risk():
 
 
 
+
+
 # ==========================================
-# Run Server
+# START SERVER
 # ==========================================
 
-if __name__ == "__main__":
+
+if __name__=="__main__":
+
+
+    print("Mental Wellness AI Backend Started")
 
 
     app.run(

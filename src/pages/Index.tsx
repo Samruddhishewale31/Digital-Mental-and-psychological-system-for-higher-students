@@ -5,10 +5,11 @@ import {
   MessageCircle,
   BookOpen,
   Wind,
- CalendarCheck,
+  CalendarCheck,
   ArrowRight,
   Camera,
   AudioLines,
+  Brain,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,14 @@ const features = [
     title: "Voice + Self Assessment",
     desc: "Analyze vocal emotional cues and combine them with self-assessment for final emotional wellbeing analysis.",
     link: "/voice-combined",
+  },
+
+    // COMPLETE ANALYSIS
+  {
+    icon: Brain,
+    title: "Complete Wellness Analysis",
+    desc: "Generate an overall emotional wellbeing report by combining self assessment, facial emotional cues and voice analysis.",
+    link: "/complete-analysis",
   },
 
   {
@@ -172,12 +181,20 @@ const Index = () => {
                 </Button>
               </Link>
 
-              <Link to="/voice-combined">
-                <Button variant="hero-outline" size="lg">
-                  <AudioLines className="w-5 h-5" />
-                  Voice + Self
-                </Button>
-              </Link>
+             <Link to="/voice-combined">
+  <Button variant="hero-outline" size="lg">
+    <AudioLines className="w-5 h-5" />
+    Voice + Self
+  </Button>
+</Link>
+
+
+<Link to="/complete-analysis">
+  <Button variant="hero-outline" size="lg">
+    <Brain className="w-5 h-5" />
+    Complete Analysis
+  </Button>
+</Link>
             </div>
           </motion.div>
 
