@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Trash2, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import {
+ getAnxietyLevel,
+ getDepressionLevel
+} from "@/utils/riskLevelHelper";
 import {
   getAssessmentHistory,
   deleteAssessment,
@@ -169,9 +172,9 @@ const AssessmentHistory = () => {
 
                     <h3 className="text-xl font-bold">
 
-                      {item.depressionScore}/18
+{getDepressionLevel(item.depressionScore)}
 
-                    </h3>
+</h3>
 
                   </div>
 
@@ -184,8 +187,11 @@ const AssessmentHistory = () => {
                     </p>
 
                     <h3 className="text-xl font-bold">
+<h3 className="text-xl font-bold">
 
-                      {item.anxietyScore}/12
+{getAnxietyLevel(item.anxietyScore)}
+
+</h3>
 
                     </h3>
 

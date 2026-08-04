@@ -114,7 +114,18 @@ localStorage.removeItem("assessmentResult");
   // =====================================
 
   if (submitted) {
+const previousHistory = JSON.parse(
+ localStorage.getItem(
+ "mental-health-assessment-history"
+ ) || "[]"
+);
 
+
+const elevatedCount = previousHistory.filter(
+(item:any)=>
+ item.riskLevel === "High Risk" ||
+ item.riskLevel === "Moderate Risk"
+).length;
     return (
       <div className="container mx-auto px-5 py-12 flex justify-center">
 
@@ -260,31 +271,48 @@ localStorage.removeItem("assessmentResult");
     </div>
         {/* High Risk Alert */}
 
-    {result.riskLevel === "High Risk" && (
+{(result.riskLevel === "High Risk" ||
+ result.riskLevel === "Moderate Risk") && (
 
-      <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
+  <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
 
-        <h2 className="text-xl font-bold text-red-700">
+    <h2 className="text-xl font-bold text-red-700">
+      Professional Support Recommended
+    </h2>
 
-          Professional Support Recommended
+    <p className="mt-4 leading-7 text-red-700">
+      Your responses suggest a higher level of emotional distress.
+      This assessment is a screening tool only and is not a diagnosis.
+    </p>
 
-        </h2>
+  </div>
 
-        <p className="mt-4 leading-7 text-red-700">
+)}
 
-          Your responses suggest a higher level of emotional distress.
 
-          This assessment is a screening tool only and is not a diagnosis.
+{/* Repeated Elevated Scores */}
 
-          We strongly encourage you to seek support from a qualified
-          mental health professional or speak with a trusted family
-          member, teacher or friend.
+{elevatedCount >= 3 && (
 
-        </p>
+<div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
 
-      </div>
+<h2 className="text-xl font-bold text-red-700">
 
-    )}
+Repeated Elevated Scores
+
+</h2>
+
+
+<p className="mt-4 text-red-700 leading-7">
+
+Your assessment scores have remained elevated over multiple assessments.
+We recommend scheduling a consultation with a qualified mental health professional.
+
+</p>
+
+</div>
+
+)}
 
     {/* Recommendations */}
 
@@ -585,21 +613,22 @@ return (
   disabled={answers.includes(-1)}
   onClick={() => {
 
-    saveAssessment(result);
+    const finalResult = calculateAssessment(answers);
 
-// Save the complete result
-localStorage.setItem(
-  "assessmentResult",
-  JSON.stringify(result)
-);
+    saveAssessment(finalResult);
 
-localStorage.setItem(
-  "assessmentSubmitted",
-  "true"
-);
+    localStorage.setItem(
+      "assessmentResult",
+      JSON.stringify(finalResult)
+    );
 
-setStart(true);
-setSubmitted(true);
+    localStorage.setItem(
+      "assessmentSubmitted",
+      "true"
+    );
+
+    setStart(true);
+    setSubmitted(true);
 
   }}
 >

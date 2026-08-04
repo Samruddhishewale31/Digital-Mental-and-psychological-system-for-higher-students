@@ -19,7 +19,7 @@ import VoiceCombinedAnalysis from "./pages/VoiceCombinedAnalysis";
 import MoodTracker from "./pages/MoodTracker";
 import RelaxingMusic from "./pages/RelaxingMusic";
 import StressReliefVideos from "./pages/StressReliefVideos";
-
+import AssessmentHistory from "./pages/AssessmentHistory";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -37,6 +37,10 @@ const App = () => (
           <Route path="/stress-relief" element={<StressRelief />} />
           {<Route path="/counselling" element={<CounsellingBooking />} /> }
           <Route path="/auth" element={<Auth />} />
+          <Route 
+  path="/assessment-history" 
+  element={<AssessmentHistory />} 
+/>
           <Route path="*" element={<NotFound />} />
           <Route path="/face-analysis" element={<FaceAnalysis />} />
           <Route path="/voice-analysis" element={<VoiceAnalysis />} />
