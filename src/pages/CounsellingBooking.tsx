@@ -130,14 +130,20 @@ const CounsellingBooking = () => {
 
           <div className="mt-8 flex gap-3">
 
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
+           <Button
+  variant="outline"
+  onClick={() =>
+    navigate("/assessment", {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+>
+  <ArrowLeft className="mr-2 h-4 w-4" />
+  Back to Assessment
+</Button>
+      
 
             <Button
               className="flex-1"

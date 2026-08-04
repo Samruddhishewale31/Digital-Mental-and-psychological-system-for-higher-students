@@ -48,16 +48,19 @@ const Journal = () => {
     <div className="container mx-auto px-4 py-16 max-w-3xl">
       <div className="mb-8">
 
-  <Button
-    variant="outline"
-    onClick={() => navigate(-1)}
-  >
-
-    <ArrowLeft className="mr-2 h-4 w-4" />
-
-    Back to Assessment
-
-  </Button>
+ <Button
+  variant="outline"
+  onClick={() =>
+    navigate("/assessment", {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+>
+  <ArrowLeft className="mr-2 h-4 w-4" />
+  Back to Assessment
+</Button>
 
 </div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
@@ -124,15 +127,18 @@ const Journal = () => {
         <div className="flex justify-center gap-4 mt-10">
 
   <Button
-    variant="outline"
-    onClick={() => navigate(-1)}
-  >
-
-    <ArrowLeft className="mr-2 h-4 w-4" />
-
-    Back to Assessment
-
-  </Button>
+  variant="outline"
+  onClick={() =>
+    navigate("/assessment", {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+>
+  <ArrowLeft className="mr-2 h-4 w-4" />
+  Back to Assessment
+</Button>
 
   <Button
     onClick={() => navigate("/")}

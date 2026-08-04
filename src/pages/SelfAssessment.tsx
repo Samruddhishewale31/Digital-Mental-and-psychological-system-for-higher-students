@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   ArrowLeft,
@@ -27,7 +27,10 @@ import { recommendations } from "@/data/recommendations";
 
 const SelfAssessment = () => {
 const navigate = useNavigate();
-  const [start, setStart] = useState(false);
+const location = useLocation();
+  const [start, setStart] = useState(() => {
+  return localStorage.getItem("assessmentSubmitted") === "true";
+});
 
   const [current, setCurrent] = useState(0);
 
@@ -35,8 +38,18 @@ const navigate = useNavigate();
     Array(questions.length).fill(-1)
   );
 
-  const [submitted, setSubmitted] =
-    useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  useEffect(() => {
+  const savedSubmitted = localStorage.getItem("assessmentSubmitted");
+
+  if (
+    location.state?.fromAssessment ||
+    savedSubmitted === "true"
+  ) {
+    setSubmitted(true);
+    setStart(true);
+  }
+}, [location]);
 
   const selectAnswer = (value: number) => {
 
@@ -48,8 +61,12 @@ const navigate = useNavigate();
 
   };
 
-  const result =
-    calculateAssessment(answers);
+  const savedResult = localStorage.getItem("assessmentResult");
+
+const result =
+  submitted && savedResult
+    ? JSON.parse(savedResult)
+    : calculateAssessment(answers);
 
   const supportRecommendations =
     recommendations[result.riskLevel];
@@ -84,7 +101,8 @@ const navigate = useNavigate();
     );
 
     setCurrent(0);
-
+localStorage.removeItem("assessmentSubmitted");
+localStorage.removeItem("assessmentResult");
     setSubmitted(false);
 
     setStart(false);
@@ -284,7 +302,16 @@ const navigate = useNavigate();
 
           <button
             key={item.title}
-            onClick={() => navigate(item.link)}
+           onClick={() => {
+  console.log("Title:", item.title);
+  console.log("Link:", item.link);
+
+  navigate(item.link, {
+    state: {
+      fromAssessment: true,
+    },
+  });
+}}
             className={`
               p-5
               rounded-2xl
@@ -555,22 +582,29 @@ return (
         ) : (
 
           <Button
+  disabled={answers.includes(-1)}
+  onClick={() => {
 
-            disabled={answers.includes(-1)}
+    saveAssessment(result);
 
-            onClick={() => {
+// Save the complete result
+localStorage.setItem(
+  "assessmentResult",
+  JSON.stringify(result)
+);
 
-              saveAssessment(result);
+localStorage.setItem(
+  "assessmentSubmitted",
+  "true"
+);
 
-              setSubmitted(true);
+setStart(true);
+setSubmitted(true);
 
-            }}
-
-          >
-
-            Submit Assessment
-
-          </Button>
+  }}
+>
+  Submit Assessment
+</Button>
 
         )}
 
