@@ -283,9 +283,15 @@ const navigate = useNavigate();
         {supportRecommendations.map((item) => (
 
           <button
-            key={item.title}
-            onClick={() => navigate(item.link)}
-            className={`
+  key={item.title}
+  onClick={() =>
+    navigate(item.link, {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+  className={`
               p-5
               rounded-2xl
               border
@@ -559,13 +565,20 @@ return (
             disabled={answers.includes(-1)}
 
             onClick={() => {
+  saveAssessment(result);
 
-              saveAssessment(result);
+  localStorage.setItem(
+    "questionnaire_score",
+    String(result.totalScore)
+  );
 
-              setSubmitted(true);
+  localStorage.setItem(
+    "questionnaire_risk",
+    result.riskLevel
+  );
 
-            }}
-
+  navigate("/face-analysis");
+}}
           >
 
             Submit Assessment
