@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Brain,
   CheckCircle,
@@ -16,77 +16,126 @@ type Result = {
 
 export default function CompleteAnalysis() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
+useEffect(() => {
+  console.log("===== SELF ASSESSMENT =====");
+  console.log("location.state =", location.state);
+  console.log(
+    "assessmentSubmitted =",
+    localStorage.getItem("assessmentSubmitted")
+  );
+  console.log(
+    "questionnaire_score =",
+    localStorage.getItem("questionnaire_score")
+  );
 
+  // ...your existing code...
+}, [location]);
   useEffect(() => {
-    generateReport();
-  }, []);
 
-const generateReport = async () => {
-  const questionnaireValue = localStorage.getItem("questionnaire_score");
-  const faceValue = localStorage.getItem("face_score");
-  const voiceValue = localStorage.getItem("voice_score");
+  const questionnaire = localStorage.getItem("questionnaire_score");
+  const face = localStorage.getItem("face_score");
+  const voice = localStorage.getItem("voice_score");
 
-  if (
-    questionnaireValue === null ||
-    faceValue === null ||
-    voiceValue === null
-  ) {
-    alert(
-      "Please complete the Self Assessment, Face Analysis and Voice Analysis first."
-    );
+  // First visit from Home
+  if (!location.state?.generateReport) {
 
-    navigate("/assessment");
-    return;
-  }
+    if (!questionnaire) {
 
-  const questionnaire = Number(questionnaireValue);
-  const face = Number(faceValue);
-  const voice = Number(voiceValue);
-
-  try {
-    const response = await fetch(
-      "http://127.0.0.1:5000/final-risk",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      navigate("/assessment", {
+        state: {
+          fromComplete: true,
         },
-        body: JSON.stringify({
-          questionnaire_score: questionnaire,
-          face_score: face,
-          voice_score: voice,
-        }),
-      }
-    );
+      });
 
-    if (!response.ok) {
-      throw new Error("Backend not running");
+      return;
     }
 
-    const data = await response.json();
+    if (!face) {
 
-    setResult({
-      questionnaire,
-      face,
-      voice,
-      overall: data.overall_score,
-      risk: data.risk_level,
-    });
-  } catch (error) {
-    console.error(error);
+      navigate("/face-analysis", {
+        state: {
+          fromComplete: true,
+        },
+      });
 
-    alert(
-      "Unable to generate the final report.\n\nPlease make sure the Flask backend is running."
-    );
+      return;
+    }
 
-    navigate("/voice-analysis");
-  } finally {
-    setLoading(false);
+    if (!voice) {
+
+      navigate("/voice-analysis", {
+        state: {
+          fromComplete: true,
+        },
+      });
+
+      return;
+    }
+
   }
-};
+
+  generateReport();
+
+}, [location.state, navigate]);
+
+  const generateReport = async () => {
+    const questionnaireValue = localStorage.getItem("questionnaire_score");
+    const faceValue = localStorage.getItem("face_score");
+    const voiceValue = localStorage.getItem("voice_score");
+
+    
+
+    const questionnaire = Number(questionnaireValue);
+    const face = Number(faceValue);
+    const voice = Number(voiceValue);
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:5000/final-risk",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            questionnaire_score: questionnaire,
+            face_score: face,
+            voice_score: voice,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Backend not running");
+      }
+
+      const data = await response.json();
+
+      setResult({
+        questionnaire,
+        face,
+        voice,
+        overall: data.overall_score,
+        risk: data.risk_level,
+      });
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Unable to generate the final report.\n\nPlease make sure the Flask backend is running."
+      );
+
+      alert(
+  "Unable to generate the report.\nPlease make sure the backend is running."
+);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -169,11 +218,10 @@ const generateReport = async () => {
           <AlertTriangle className="text-yellow-600" />
 
           <p>
-            This AI-generated report provides supportive
-            wellbeing indicators only and should not be
-            considered a medical or psychological diagnosis.
-            Please consult a qualified mental health
-            professional if you have ongoing concerns.
+            This AI-generated report provides supportive wellbeing indicators
+            only and should not be considered a medical or psychological
+            diagnosis. Please consult a qualified mental health professional if
+            you have ongoing concerns.
           </p>
 
         </div>

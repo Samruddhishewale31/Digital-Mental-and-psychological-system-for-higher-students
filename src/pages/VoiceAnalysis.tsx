@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Music2,
   Mic,
@@ -45,6 +45,10 @@ type VoiceResult = {
 
 const VoiceAnalysis = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+const fromComplete =
+  location.state?.fromComplete === true;
 
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -271,6 +275,8 @@ const VoiceAnalysis = () => {
 
     setResult(resultData);
 
+    console.log("Result Data:", resultData);
+console.log("Voice Score:", resultData.voice_score);
     // Save voice data for final report
 localStorage.setItem(
   "voice_score",
@@ -644,11 +650,29 @@ a psychological diagnosis.
   </p>
 
   <button
-    onClick={() => navigate("/complete-analysis")}
-    className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
-  >
-    View Complete Analysis →
-  </button>
+  onClick={() => {
+
+    if (fromComplete) {
+
+      navigate("/complete-analysis", {
+        state: {
+          generateReport: true,
+        },
+      });
+
+    } else {
+
+      navigate("/voice-combined");
+
+    }
+
+  }}
+  className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
+>
+  {fromComplete
+    ? "Generate Complete Report →"
+    : "View Voice Analysis →"}
+</button>
 
 </div>
 
