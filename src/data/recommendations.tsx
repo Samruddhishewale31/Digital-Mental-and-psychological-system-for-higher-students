@@ -11,41 +11,50 @@ export const recommendations = {
 
   "Minimal Risk": [
 
-    {
-      title: "Calming Music",
-      description:
-        "Listen to calming music or nature sounds to maintain emotional wellbeing.",
-      icon: <Music size={40} className="text-blue-500" />,
-      link: "/relaxing-music",
-    },
+  {
+    title: "Calming Music",
+    description:
+      "Listen to calming music or nature sounds to maintain emotional wellbeing.",
+    icon: <Music size={40} className="text-blue-500" />,
+    link: "/relaxing-music",
+  },
 
-    {
-      title: "Mood Tracker",
-      description:
-        "Track your mood regularly to stay aware of emotional changes.",
-      icon: <Smile size={40} className="text-green-500" />,
-      link: "/mood-tracker",
-    },
+  {
+    title: "Mood Tracker",
+    description:
+      "Track your mood regularly to stay aware of emotional changes.",
+    icon: <Smile size={40} className="text-green-500" />,
+    link: "/mood-tracker",
+  },
 
-    {
-      title: "Stress Relief Exercises",
-      description:
-        "Watch guided breathing and relaxation exercises to stay calm and focused.",
-      icon: <Wind size={40} className="text-cyan-500" />,
-      link: "/stress-relief-videos",
-    },
+  
+ {
+  title: "Stress Relief Exercises",
+  description:
+    "Practice guided breathing, mindfulness and focus exercises.",
+  icon: <Wind size={40} className="text-cyan-500" />,
+  link: "/stress-relief",
+},
 
-  ],
+  {
+    title: "Journal",
+    description:
+      "Write about your thoughts and emotions to maintain emotional wellbeing.",
+    icon: <BookOpen size={40} className="text-orange-500" />,
+    link: "/journal",
+  },
+
+],
 
   "Mild Risk": [
 
-    {
-      title: "Stress Relief Exercises",
-      description:
-        "Watch guided breathing and relaxation exercises to reduce stress.",
-      icon: <Wind size={40} className="text-cyan-500" />,
-      link: "/stress-relief-videos",
-    },
+   {
+  title: "Stress Relief Exercises",
+  description:
+    "Practice guided breathing, mindfulness and focus exercises.",
+  icon: <Wind size={40} className="text-cyan-500" />,
+  link: "/stress-relief",
+},
 
     {
       title: "Journal",

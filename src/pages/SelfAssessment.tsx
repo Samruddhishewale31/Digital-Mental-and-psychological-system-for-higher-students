@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   ArrowLeft,
@@ -27,7 +27,10 @@ import { recommendations } from "@/data/recommendations";
 
 const SelfAssessment = () => {
 const navigate = useNavigate();
-  const [start, setStart] = useState(false);
+const location = useLocation();
+  const [start, setStart] = useState(() => {
+  return localStorage.getItem("assessmentSubmitted") === "true";
+});
 
   const [current, setCurrent] = useState(0);
 
@@ -35,8 +38,18 @@ const navigate = useNavigate();
     Array(questions.length).fill(-1)
   );
 
-  const [submitted, setSubmitted] =
-    useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  useEffect(() => {
+  const savedSubmitted = localStorage.getItem("assessmentSubmitted");
+
+  if (
+    location.state?.fromAssessment ||
+    savedSubmitted === "true"
+  ) {
+    setSubmitted(true);
+    setStart(true);
+  }
+}, [location]);
 
   const selectAnswer = (value: number) => {
 
@@ -48,8 +61,12 @@ const navigate = useNavigate();
 
   };
 
-  const result =
-    calculateAssessment(answers);
+  const savedResult = localStorage.getItem("assessmentResult");
+
+const result =
+  submitted && savedResult
+    ? JSON.parse(savedResult)
+    : calculateAssessment(answers);
 
   const supportRecommendations =
     recommendations[result.riskLevel];
@@ -84,7 +101,8 @@ const navigate = useNavigate();
     );
 
     setCurrent(0);
-
+localStorage.removeItem("assessmentSubmitted");
+localStorage.removeItem("assessmentResult");
     setSubmitted(false);
 
     setStart(false);
@@ -96,7 +114,18 @@ const navigate = useNavigate();
   // =====================================
 
   if (submitted) {
+const previousHistory = JSON.parse(
+ localStorage.getItem(
+ "mental-health-assessment-history"
+ ) || "[]"
+);
 
+
+const elevatedCount = previousHistory.filter(
+(item:any)=>
+ item.riskLevel === "High Risk" ||
+ item.riskLevel === "Moderate Risk"
+).length;
     return (
       <div className="container mx-auto px-5 py-12 flex justify-center">
 
@@ -242,31 +271,48 @@ const navigate = useNavigate();
     </div>
         {/* High Risk Alert */}
 
-    {result.riskLevel === "High Risk" && (
+{(result.riskLevel === "High Risk" ||
+ result.riskLevel === "Moderate Risk") && (
 
-      <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
+  <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
 
-        <h2 className="text-xl font-bold text-red-700">
+    <h2 className="text-xl font-bold text-red-700">
+      Professional Support Recommended
+    </h2>
 
-          Professional Support Recommended
+    <p className="mt-4 leading-7 text-red-700">
+      Your responses suggest a higher level of emotional distress.
+      This assessment is a screening tool only and is not a diagnosis.
+    </p>
 
-        </h2>
+  </div>
 
-        <p className="mt-4 leading-7 text-red-700">
+)}
 
-          Your responses suggest a higher level of emotional distress.
 
-          This assessment is a screening tool only and is not a diagnosis.
+{/* Repeated Elevated Scores */}
 
-          We strongly encourage you to seek support from a qualified
-          mental health professional or speak with a trusted family
-          member, teacher or friend.
+{elevatedCount >= 3 && (
 
-        </p>
+<div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
 
-      </div>
+<h2 className="text-xl font-bold text-red-700">
 
-    )}
+Repeated Elevated Scores
+
+</h2>
+
+
+<p className="mt-4 text-red-700 leading-7">
+
+Your assessment scores have remained elevated over multiple assessments.
+We recommend scheduling a consultation with a qualified mental health professional.
+
+</p>
+
+</div>
+
+)}
 
     {/* Recommendations */}
 
@@ -282,7 +328,7 @@ const navigate = useNavigate();
 
         {supportRecommendations.map((item) => (
 
-          <button
+    <button
   key={item.title}
   onClick={() =>
     navigate(item.link, {
@@ -292,21 +338,21 @@ const navigate = useNavigate();
     })
   }
   className={`
-              p-5
-              rounded-2xl
-              border
-              text-left
-              transition-all
-              duration-300
-              hover:shadow-lg
-              hover:-translate-y-1
-              ${
-                item.title === "Professional Counselling"
-                  ? "border-red-400 bg-red-50"
-                  : ""
-              }
-            `}
-          >
+    p-5
+    rounded-2xl
+    border
+    text-left
+    transition-all
+    duration-300
+    hover:shadow-lg
+    hover:-translate-y-1
+    ${
+      item.title === "Professional Counselling"
+        ? "border-red-400 bg-red-50"
+        : ""
+    }
+  `}
+>
 
             <div className="text-4xl">
 
@@ -561,29 +607,38 @@ return (
         ) : (
 
           <Button
+  disabled={answers.includes(-1)}
+  onClick={() => {
+    const finalResult = calculateAssessment(answers);
 
-            disabled={answers.includes(-1)}
+    saveAssessment(finalResult);
 
-            onClick={() => {
-  saveAssessment(result);
+    localStorage.setItem(
+      "assessmentResult",
+      JSON.stringify(finalResult)
+    );
 
-  localStorage.setItem(
-    "questionnaire_score",
-    String(result.totalScore)
-  );
+    localStorage.setItem(
+      "assessmentSubmitted",
+      "true"
+    );
 
-  localStorage.setItem(
-    "questionnaire_risk",
-    result.riskLevel
-  );
+    localStorage.setItem(
+      "questionnaire_score",
+      String(finalResult.totalScore)
+    );
 
-  navigate("/face-analysis");
-}}
-          >
+    localStorage.setItem(
+      "questionnaire_risk",
+      finalResult.riskLevel
+    );
 
-            Submit Assessment
-
-          </Button>
+    setStart(true);
+    setSubmitted(true);
+  }}
+>
+  Submit Assessment
+</Button>
 
         )}
 

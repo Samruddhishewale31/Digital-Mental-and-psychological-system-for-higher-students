@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Route, Routes } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -18,11 +18,13 @@ import FaceAnalysis from "./pages/FaceAnalysis";
 import VoiceAnalysis from "./pages/VoiceAnalysis";
 import FaceCombinedAnalysis from "./pages/FaceCombinedAnalysis";
 import VoiceCombinedAnalysis from "./pages/VoiceCombinedAnalysis";
+
 import RelaxingMusic from "./pages/RelaxingMusic";
 import MoodTracker from "./pages/MoodTracker";
 import CompleteAnalysis from "./pages/CompleteAnalysis";
 
-/* ---------- NEW COUNSELLING MODULE ---------- */
+import StressReliefVideos from "./pages/StressReliefVideos";
+import AssessmentHistory from "./pages/AssessmentHistory";
 
 import CounsellorList from "./pages/CounsellorList";
 import CounsellorProfile from "./pages/CounsellorProfile";
@@ -33,136 +35,116 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-
     <TooltipProvider>
 
       <Toaster />
-
       <Sonner />
 
-      <Navbar />
+      <BrowserRouter>
 
-      <Routes>
+        <Navbar />
 
-        {/* Home */}
+        <Routes>
 
-        <Route
-          path="/"
-          element={<Index />}
-        />
+          <Route path="/" element={<Index />} />
 
-        {/* Assessment */}
+          <Route
+            path="/assessment"
+            element={<SelfAssessment />}
+          />
 
-        <Route
-          path="/assessment"
-          element={<SelfAssessment />}
-        />
+          <Route
+            path="/assessment-history"
+            element={<AssessmentHistory />}
+          />
 
-        {/* AI Chat */}
+          <Route
+            path="/chat"
+            element={<AIChat />}
+          />
 
-        <Route
-          path="/chat"
-          element={<AIChat />}
-        />
+          <Route
+            path="/journal"
+            element={<Journal />}
+          />
 
-        {/* Journal */}
+          <Route
+            path="/stress-relief"
+            element={<StressRelief />}
+          />
 
-        <Route
-          path="/journal"
-          element={<Journal />}
-        />
+          <Route
+            path="/face-analysis"
+            element={<FaceAnalysis />}
+          />
 
-        {/* Stress Relief */}
+          <Route
+            path="/voice-analysis"
+            element={<VoiceAnalysis />}
+          />
 
-        <Route
-          path="/stress-relief"
-          element={<StressRelief />}
-        />
+          <Route
+            path="/face-combined"
+            element={<FaceCombinedAnalysis />}
+          />
 
-        {/* Face Analysis */}
+          <Route
+            path="/voice-combined"
+            element={<VoiceCombinedAnalysis />}
+          />
 
-        <Route
-          path="/face-analysis"
-          element={<FaceAnalysis />}
-        />
+          <Route
+            path="/complete-analysis"
+            element={<CompleteAnalysis />}
+          />
 
-        {/* Voice Analysis */}
+          <Route
+            path="/mood-tracker"
+            element={<MoodTracker />}
+          />
 
-        <Route
-          path="/voice-analysis"
-          element={<VoiceAnalysis />}
-        />
+          <Route
+            path="/relaxing-music"
+            element={<RelaxingMusic />}
+          />
 
-        {/* Face + Assessment */}
+          <Route
+            path="/stress-relief-videos"
+            element={<StressReliefVideos />}
+          />
 
-        <Route
-          path="/face-combined"
-          element={<FaceCombinedAnalysis />}
-        />
+          {/* Counselling Module */}
 
-        {/* Voice + Assessment */}
+          <Route
+            path="/counselling"
+            element={<CounsellorList />}
+          />
 
-        <Route
-          path="/voice-combined"
-          element={<VoiceCombinedAnalysis />}
-        />
+          <Route
+            path="/counsellor/:id"
+            element={<CounsellorProfile />}
+          />
 
-        {/* Complete Analysis */}
+          <Route
+            path="/book/:id"
+            element={<BookAppointment />}
+          />
 
-        <Route
-          path="/complete-analysis"
-          element={<CompleteAnalysis />}
-        />
+          <Route
+            path="/my-appointments"
+            element={<MyAppointments />}
+          />
 
-        {/* Relaxing Music */}
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
 
-        <Route
-          path="/relaxing-music"
-          element={<RelaxingMusic />}
-        />
+        </Routes>
 
-        {/* Mood Tracker */}
-
-        <Route
-          path="/mood-tracker"
-          element={<MoodTracker />}
-        />
-
-        {/* ==========================
-            NEW COUNSELLOR MODULE
-        =========================== */}
-
-        <Route
-          path="/counselling"
-          element={<CounsellorList />}
-        />
-
-        <Route
-          path="/counsellor/:id"
-          element={<CounsellorProfile />}
-        />
-
-        <Route
-          path="/book/:id"
-          element={<BookAppointment />}
-        />
-
-        <Route
-          path="/my-appointments"
-          element={<MyAppointments />}
-        />
-
-        {/* 404 */}
-
-        <Route
-          path="*"
-          element={<NotFound />}
-        />
-
-      </Routes>
+      </BrowserRouter>
 
     </TooltipProvider>
-
   </QueryClientProvider>
 );
 

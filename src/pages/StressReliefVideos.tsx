@@ -1,4 +1,5 @@
-import { PlayCircle, Wind, ArrowLeft } from "lucide-react";
+import { PlayCircle, Wind, ArrowLeft, Home } from "lucide-react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -75,21 +76,36 @@ const videos = [
 export default function StressReliefVideos() {
 
   const navigate = useNavigate();
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
+}, []);
 
   return (
 
     <div className="container mx-auto py-12 px-5">
-      <div className="mb-8">
+      <div className="flex justify-between items-center flex-wrap gap-4 mb-10">
 
   <Button
-    variant="outline"
-    onClick={() => navigate(-1)}
-  >
+  variant="outline"
+  onClick={() =>
+    navigate("/assessment", {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+>
+  <ArrowLeft className="mr-2 h-4 w-4" />
+  Back to Assessment
+</Button>
 
-    <ArrowLeft className="mr-2 h-4 w-4" />
-
-    Back to Assessment
-
+  <Button onClick={() => navigate("/")}>
+    <Home className="mr-2 h-4 w-4" />
+    Back Home
   </Button>
 
 </div>

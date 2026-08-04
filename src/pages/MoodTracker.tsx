@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -100,6 +100,13 @@ const moods = [
 ];
 const MoodTracker = () => {
   const navigate = useNavigate();
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
+}, []);
 
   const [selectedMood, setSelectedMood] = useState<any>(null);
   const [reflection, setReflection] = useState("");
@@ -142,12 +149,18 @@ const MoodTracker = () => {
 
         <div className="mb-8">
           <Button
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Assessment
-          </Button>
+  variant="outline"
+  onClick={() =>
+    navigate("/assessment", {
+      state: {
+        fromAssessment: true,
+      },
+    })
+  }
+>
+  <ArrowLeft className="mr-2 h-4 w-4" />
+  Back to Assessment
+</Button>
         </div>
 
         {/* Header */}
