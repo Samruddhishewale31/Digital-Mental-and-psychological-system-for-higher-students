@@ -34,11 +34,15 @@ VOICE_SCALER_PATH = os.path.join(
     "voice_scaler.pkl"
 )
 
-
+VOICE_LABEL_ENCODER_PATH = os.path.join(
+    "models",
+    "voice_label_encoder.pkl"
+)
 
 face_model = None
 voice_model = None
 voice_scaler = None
+voice_label_encoder = None
 
 
 
@@ -75,7 +79,12 @@ try:
         VOICE_SCALER_PATH
     )
 
+    voice_label_encoder = joblib.load(
+        VOICE_LABEL_ENCODER_PATH
+    )
+
     print("Voice model loaded successfully")
+    print("Voice label encoder loaded successfully")
 
 
 except Exception as e:
@@ -117,13 +126,16 @@ def health():
         "face_model_loaded":
         face_model is not None,
 
-
         "voice_model_loaded":
-        voice_model is not None
+        voice_model is not None,
+
+        "voice_scaler_loaded":
+        voice_scaler is not None,
+
+        "voice_label_encoder_loaded":
+        voice_label_encoder is not None
 
     })
-
-
 
 
 
@@ -194,67 +206,49 @@ def predict_face():
 # VOICE ANALYSIS
 # ==========================================
 
-
 @app.route("/predict-voice", methods=["POST"])
 def predict_voice():
 
-
-    if "audio" not in request.files:
-
-        return jsonify({
-
-            "status":"error",
-
-            "message":"No audio uploaded"
-
-        }),400
-
-
+    import traceback
 
     try:
+        print("========== REQUEST RECEIVED ==========")
 
+        if "audio" not in request.files:
+            print("No audio in request")
+            return jsonify({
+                "status": "error",
+                "message": "No audio uploaded"
+            }), 400
 
-        audio=request.files["audio"]
+        audio = request.files["audio"]
 
+        print("Filename:", audio.filename)
+        print("Content Type:", audio.content_type)
 
-
-        result=predict_voice_emotion(
-
+        result = predict_voice_emotion(
             voice_model,
-
             voice_scaler,
-
+            voice_label_encoder,
             audio
-
         )
 
-
+        print("Prediction completed")
 
         return jsonify({
-
-            "status":"success",
-
-            "data":result
-
+            "status": "success",
+            "data": result
         })
 
-
-
     except Exception as e:
-
-
-        print("VOICE ERROR:",e)
-
+        print("\n========== FULL ERROR ==========")
+        traceback.print_exc()
+        print("================================")
 
         return jsonify({
-
-            "status":"error",
-
-            "message":str(e)
-
-        }),500
-
-
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 
 

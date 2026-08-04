@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Webcam from "react-webcam";
 
 type FaceResult = {
@@ -25,6 +25,10 @@ const videoConstraints = {
 export default function FaceAnalysis() {
   const webcamRef = useRef<Webcam | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+const fromComplete =
+  location.state?.fromComplete === true;
 
 
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -454,11 +458,27 @@ setResult(data);
   </p>
 
   <button
-    onClick={() => navigate("/voice-analysis")}
-    className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
-  >
-    Continue to Voice Analysis →
-  </button>
+  onClick={() => {
+
+    if (fromComplete) {
+
+      navigate("/voice-analysis", {
+        state: {
+          fromComplete: true,
+        },
+      });
+
+    } else {
+
+      navigate("/voice-analysis");
+
+    }
+
+  }}
+  className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
+>
+  Continue to Voice Analysis →
+</button>
 
 </div>
 

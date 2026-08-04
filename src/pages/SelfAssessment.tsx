@@ -28,9 +28,7 @@ import { recommendations } from "@/data/recommendations";
 const SelfAssessment = () => {
 const navigate = useNavigate();
 const location = useLocation();
-  const [start, setStart] = useState(() => {
-  return localStorage.getItem("assessmentSubmitted") === "true";
-});
+const [start, setStart] = useState(false);
 
   const [current, setCurrent] = useState(0);
 
@@ -39,16 +37,30 @@ const location = useLocation();
   );
 
   const [submitted, setSubmitted] = useState(false);
+  console.log("===== SELF ASSESSMENT =====");
+console.log("Location State:", location.state);
+console.log(
+  "assessmentSubmitted:",
+  localStorage.getItem("assessmentSubmitted")
+);
   useEffect(() => {
-  const savedSubmitted = localStorage.getItem("assessmentSubmitted");
 
-  if (
-    location.state?.fromAssessment ||
-    savedSubmitted === "true"
-  ) {
+  // Coming from Complete Analysis
+  if (location.state?.fromComplete) {
+    setStart(true);
+    setSubmitted(false);
+    return;
+  }
+
+  // Opening the individual assessment normally
+  const savedSubmitted =
+    localStorage.getItem("assessmentSubmitted");
+
+  if (savedSubmitted === "true") {
     setSubmitted(true);
     setStart(true);
   }
+
 }, [location]);
 
   const selectAnswer = (value: number) => {
@@ -490,18 +502,15 @@ if (!start) {
         
 
         <Button
-
-          size="lg"
-
-          className="mt-10"
-
-          onClick={() => setStart(true)}
-
-        >
-
-          Start Assessment
-
-        </Button>
+  size="lg"
+  className="mt-10"
+  onClick={() => {
+    setStart(true);
+    setSubmitted(false);
+  }}
+>
+  Start Assessment
+</Button>
 
       </div>
 
@@ -609,6 +618,7 @@ return (
           <Button
   disabled={answers.includes(-1)}
   onClick={() => {
+
     const finalResult = calculateAssessment(answers);
 
     saveAssessment(finalResult);
@@ -633,8 +643,22 @@ return (
       finalResult.riskLevel
     );
 
+    // Came from Complete Analysis
+    if (location.state?.fromComplete) {
+
+      navigate("/face-analysis", {
+        state: {
+          fromComplete: true,
+        },
+      });
+
+      return;
+    }
+
+    // Normal Individual Assessment
     setStart(true);
     setSubmitted(true);
+
   }}
 >
   Submit Assessment

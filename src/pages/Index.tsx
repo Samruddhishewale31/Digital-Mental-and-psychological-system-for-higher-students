@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ClipboardCheck,
@@ -123,6 +123,8 @@ const item = {
 };
 
 const Index = () => {
+
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen">
       {/* HERO SECTION */}
@@ -189,12 +191,25 @@ const Index = () => {
 </Link>
 
 
-<Link to="/complete-analysis">
-  <Button variant="hero-outline" size="lg">
-    <Brain className="w-5 h-5" />
-    Complete Analysis
-  </Button>
-</Link>
+<Button
+  variant="hero-outline"
+  size="lg"
+  onClick={() => {
+
+    // Remove previous Complete Analysis data
+    localStorage.removeItem("questionnaire_score");
+    localStorage.removeItem("face_score");
+    localStorage.removeItem("voice_score");
+
+    localStorage.removeItem("assessmentSubmitted");
+    localStorage.removeItem("assessmentResult");
+
+    navigate("/complete-analysis");
+  }}
+>
+  <Brain className="w-5 h-5" />
+  Complete Analysis
+</Button>
             </div>
           </motion.div>
 
