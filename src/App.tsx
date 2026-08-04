@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -40,109 +40,114 @@ const App = () => (
       <Toaster />
       <Sonner />
 
-      <BrowserRouter>
+      <Navbar />
 
-        <Navbar />
+      <Routes>
 
-        <Routes>
+        {/* Home */}
+        <Route path="/" element={<Index />} />
 
-          <Route path="/" element={<Index />} />
+        {/* Assessment */}
+        <Route
+          path="/assessment"
+          element={<SelfAssessment />}
+        />
 
-          <Route
-            path="/assessment"
-            element={<SelfAssessment />}
-          />
+        <Route
+          path="/assessment-history"
+          element={<AssessmentHistory />}
+        />
 
-          <Route
-            path="/assessment-history"
-            element={<AssessmentHistory />}
-          />
+        {/* AI Chat */}
+        <Route
+          path="/chat"
+          element={<AIChat />}
+        />
 
-          <Route
-            path="/chat"
-            element={<AIChat />}
-          />
+        {/* Journal */}
+        <Route
+          path="/journal"
+          element={<Journal />}
+        />
 
-          <Route
-            path="/journal"
-            element={<Journal />}
-          />
+        {/* Stress Relief */}
+        <Route
+          path="/stress-relief"
+          element={<StressRelief />}
+        />
 
-          <Route
-            path="/stress-relief"
-            element={<StressRelief />}
-          />
+        <Route
+          path="/stress-relief-videos"
+          element={<StressReliefVideos />}
+        />
 
-          <Route
-            path="/face-analysis"
-            element={<FaceAnalysis />}
-          />
+        {/* Face Analysis */}
+        <Route
+          path="/face-analysis"
+          element={<FaceAnalysis />}
+        />
 
-          <Route
-            path="/voice-analysis"
-            element={<VoiceAnalysis />}
-          />
+        {/* Voice Analysis */}
+        <Route
+          path="/voice-analysis"
+          element={<VoiceAnalysis />}
+        />
 
-          <Route
-            path="/face-combined"
-            element={<FaceCombinedAnalysis />}
-          />
+        {/* Combined Analysis */}
+        <Route
+          path="/face-combined"
+          element={<FaceCombinedAnalysis />}
+        />
 
-          <Route
-            path="/voice-combined"
-            element={<VoiceCombinedAnalysis />}
-          />
+        <Route
+          path="/voice-combined"
+          element={<VoiceCombinedAnalysis />}
+        />
 
-          <Route
-            path="/complete-analysis"
-            element={<CompleteAnalysis />}
-          />
+        <Route
+          path="/complete-analysis"
+          element={<CompleteAnalysis />}
+        />
 
-          <Route
-            path="/mood-tracker"
-            element={<MoodTracker />}
-          />
+        {/* Mood & Music */}
+        <Route
+          path="/mood-tracker"
+          element={<MoodTracker />}
+        />
 
-          <Route
-            path="/relaxing-music"
-            element={<RelaxingMusic />}
-          />
+        <Route
+          path="/relaxing-music"
+          element={<RelaxingMusic />}
+        />
 
-          <Route
-            path="/stress-relief-videos"
-            element={<StressReliefVideos />}
-          />
+        {/* Counselling Module */}
+        <Route
+          path="/counselling"
+          element={<CounsellorList />}
+        />
 
-          {/* Counselling Module */}
+        <Route
+          path="/counsellor/:id"
+          element={<CounsellorProfile />}
+        />
 
-          <Route
-            path="/counselling"
-            element={<CounsellorList />}
-          />
+        <Route
+          path="/book/:id"
+          element={<BookAppointment />}
+        />
 
-          <Route
-            path="/counsellor/:id"
-            element={<CounsellorProfile />}
-          />
+        <Route
+          path="/my-appointments"
+          element={<MyAppointments />}
+        />
 
-          <Route
-            path="/book/:id"
-            element={<BookAppointment />}
-          />
+        {/* 404 */}
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
 
-          <Route
-            path="/my-appointments"
-            element={<MyAppointments />}
-          />
-
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
-
-        </Routes>
-
-      </BrowserRouter>
+      </Routes>
 
     </TooltipProvider>
   </QueryClientProvider>
