@@ -2,57 +2,96 @@ import librosa
 import numpy as np
 import tempfile
 import os
-
+import traceback
 
 # =====================================================
 # FEATURE EXTRACTION
 # (Same as training)
 # =====================================================
 
-def extract_features(audio_path):
+def extract_features(file_path):
 
-    audio, sample_rate = librosa.load(
-        audio_path,
+    audio, sr = librosa.load(
+        file_path,
+        sr=22050,
         duration=3,
         offset=0.5
     )
 
+    features = []
+
+    # MFCC (40)
     mfcc = librosa.feature.mfcc(
         y=audio,
-        sr=sample_rate,
+        sr=sr,
         n_mfcc=40
     )
 
-    chroma = librosa.feature.chroma_stft(
-        y=audio,
-        sr=sample_rate
+    features.extend(
+        np.mean(mfcc.T, axis=0)
     )
 
+    # CHROMA (12)
+    stft = np.abs(
+        librosa.stft(audio)
+    )
+
+    chroma = librosa.feature.chroma_stft(
+        S=stft,
+        sr=sr
+    )
+
+    features.extend(
+        np.mean(chroma.T, axis=0)
+    )
+
+    # MEL (128)
     mel = librosa.feature.melspectrogram(
         y=audio,
-        sr=sample_rate
+        sr=sr
     )
 
-    mfcc_mean = np.mean(
-        mfcc.T,
-        axis=0
+    features.extend(
+        np.mean(mel.T, axis=0)
     )
 
-    chroma_mean = np.mean(
-        chroma.T,
-        axis=0
+    # SPECTRAL CONTRAST (7)
+    contrast = librosa.feature.spectral_contrast(
+        S=stft,
+        sr=sr
     )
 
-    mel_mean = np.mean(
-        mel.T,
-        axis=0
+    features.extend(
+        np.mean(contrast.T, axis=0)
     )
 
-    return np.hstack([
-        mfcc_mean,
-        chroma_mean,
-        mel_mean
-    ])
+    # TONNETZ (6)
+    harmonic = librosa.effects.harmonic(audio)
+
+    tonnetz = librosa.feature.tonnetz(
+        y=harmonic,
+        sr=sr
+    )
+
+    features.extend(
+        np.mean(tonnetz.T, axis=0)
+    )
+
+    # RMS (1)
+    rms = librosa.feature.rms(y=audio)
+
+    features.append(
+        np.mean(rms)
+    )
+
+    # ZERO CROSSING RATE (1)
+    zcr = librosa.feature.zero_crossing_rate(audio)
+
+    features.append(
+        np.mean(zcr)
+    )
+
+    return np.array(features)
 
 
 # =====================================================
