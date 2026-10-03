@@ -1,76 +1,55 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route } from "react-router-dom";
 
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-
-import Navbar from "./components/Navbar";
-
+import Welcome from "./pages/Welcome";
+import Auth from "./pages/Auth";
 import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+
 import SelfAssessment from "./pages/SelfAssessment";
+import AssessmentHistory from "./pages/AssessmentHistory";
 import AIChat from "./pages/AIChat";
 import Journal from "./pages/Journal";
 import StressRelief from "./pages/StressRelief";
-import NotFound from "./pages/NotFound";
-
+import StressReliefVideos from "./pages/StressReliefVideos";
 import FaceAnalysis from "./pages/FaceAnalysis";
 import VoiceAnalysis from "./pages/VoiceAnalysis";
 import FaceCombinedAnalysis from "./pages/FaceCombinedAnalysis";
 import VoiceCombinedAnalysis from "./pages/VoiceCombinedAnalysis";
-
-import RelaxingMusic from "./pages/RelaxingMusic";
-import MoodTracker from "./pages/MoodTracker";
 import CompleteAnalysis from "./pages/CompleteAnalysis";
-
-import StressReliefVideos from "./pages/StressReliefVideos";
-import AssessmentHistory from "./pages/AssessmentHistory";
-
+import MoodTracker from "./pages/MoodTracker";
+import RelaxingMusic from "./pages/RelaxingMusic";
 import CounsellorList from "./pages/CounsellorList";
 import CounsellorProfile from "./pages/CounsellorProfile";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
 
-const queryClient = new QueryClient();
+import ProtectedRoute from "./components/ProtectedRoute";
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+const App = () => {
+  return (
+    <Routes>
+      {/* PUBLIC ROUTES */}
 
-      <Toaster />
-      <Sonner />
+      <Route path="/" element={<Welcome />} />
 
-      <Navbar />
+      <Route path="/auth" element={<Auth />} />
 
-      <Routes>
+      {/* PROTECTED ROUTES */}
 
-        {/* Home */}
-        <Route path="/" element={<Index />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/home" element={<Index />} />
 
-        {/* Assessment */}
-        <Route
-          path="/assessment"
-          element={<SelfAssessment />}
-        />
+        <Route path="/assessment" element={<SelfAssessment />} />
 
         <Route
           path="/assessment-history"
           element={<AssessmentHistory />}
         />
 
-        {/* AI Chat */}
-        <Route
-          path="/chat"
-          element={<AIChat />}
-        />
+        <Route path="/chat" element={<AIChat />} />
 
-        {/* Journal */}
-        <Route
-          path="/journal"
-          element={<Journal />}
-        />
+        <Route path="/journal" element={<Journal />} />
 
-        {/* Stress Relief */}
         <Route
           path="/stress-relief"
           element={<StressRelief />}
@@ -81,19 +60,21 @@ const App = () => (
           element={<StressReliefVideos />}
         />
 
-        {/* Face Analysis */}
+        <Route
+          path="/relaxing-music"
+          element={<RelaxingMusic />}
+        />
+
         <Route
           path="/face-analysis"
           element={<FaceAnalysis />}
         />
 
-        {/* Voice Analysis */}
         <Route
           path="/voice-analysis"
           element={<VoiceAnalysis />}
         />
 
-        {/* Combined Analysis */}
         <Route
           path="/face-combined"
           element={<FaceCombinedAnalysis />}
@@ -109,18 +90,11 @@ const App = () => (
           element={<CompleteAnalysis />}
         />
 
-        {/* Mood & Music */}
         <Route
           path="/mood-tracker"
           element={<MoodTracker />}
         />
 
-        <Route
-          path="/relaxing-music"
-          element={<RelaxingMusic />}
-        />
-
-        {/* Counselling Module */}
         <Route
           path="/counselling"
           element={<CounsellorList />}
@@ -140,17 +114,13 @@ const App = () => (
           path="/my-appointments"
           element={<MyAppointments />}
         />
+      </Route>
 
-        {/* 404 */}
-        <Route
-          path="*"
-          element={<NotFound />}
-        />
+      {/* 404 */}
 
-      </Routes>
-
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 export default App;

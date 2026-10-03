@@ -23,7 +23,6 @@ const features = [
     link: "/assessment",
   },
 
-  // INDIVIDUAL FACE
   {
     icon: Camera,
     title: "Face Analysis",
@@ -31,7 +30,6 @@ const features = [
     link: "/face-analysis",
   },
 
-  // COMBINED FACE
   {
     icon: Camera,
     title: "Face + Self Assessment",
@@ -39,7 +37,6 @@ const features = [
     link: "/face-combined",
   },
 
-  // INDIVIDUAL VOICE
   {
     icon: AudioLines,
     title: "Voice Analysis",
@@ -47,7 +44,6 @@ const features = [
     link: "/voice-analysis",
   },
 
-  // COMBINED VOICE
   {
     icon: AudioLines,
     title: "Voice + Self Assessment",
@@ -55,7 +51,6 @@ const features = [
     link: "/voice-combined",
   },
 
-    // COMPLETE ANALYSIS
   {
     icon: Brain,
     title: "Complete Wellness Analysis",
@@ -123,21 +118,36 @@ const item = {
 };
 
 const Index = () => {
-
   const navigate = useNavigate();
+
   return (
     <div className="min-h-screen">
-      {/* HERO SECTION */}
+
+      {/* ========================================= */}
+      {/* HERO SECTION                              */}
+      {/* ========================================= */}
+
       <section className="container mx-auto px-4 py-16 md:py-24">
+
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+          {/* LEFT SIDE */}
+
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
             transition={{
               duration: 0.6,
               ease: [0.23, 1, 0.32, 1],
             }}
           >
+
             <p className="text-primary font-semibold mb-4 text-sm tracking-wide uppercase">
               Student Wellness Platform
             </p>
@@ -155,67 +165,114 @@ const Index = () => {
               your academic journey.
             </p>
 
+            {/* ACTION BUTTONS */}
+
             <div className="flex flex-wrap gap-4">
+
               <Link to="/assessment">
-                <Button variant="hero" size="lg">
+                <Button
+                  variant="hero"
+                  size="lg"
+                >
                   Start Self Assessment
                 </Button>
               </Link>
 
               <Link to="/face-analysis">
-                <Button variant="hero-outline" size="lg">
+                <Button
+                  variant="hero-outline"
+                  size="lg"
+                >
                   <Camera className="w-5 h-5" />
                   Face Analysis
                 </Button>
               </Link>
 
               <Link to="/voice-analysis">
-                <Button variant="hero-outline" size="lg">
+                <Button
+                  variant="hero-outline"
+                  size="lg"
+                >
                   <AudioLines className="w-5 h-5" />
                   Voice Analysis
                 </Button>
               </Link>
 
               <Link to="/face-combined">
-                <Button variant="hero-outline" size="lg">
+                <Button
+                  variant="hero-outline"
+                  size="lg"
+                >
                   <Camera className="w-5 h-5" />
                   Face + Self
                 </Button>
               </Link>
 
-             <Link to="/voice-combined">
-  <Button variant="hero-outline" size="lg">
-    <AudioLines className="w-5 h-5" />
-    Voice + Self
-  </Button>
-</Link>
+              <Link to="/voice-combined">
+                <Button
+                  variant="hero-outline"
+                  size="lg"
+                >
+                  <AudioLines className="w-5 h-5" />
+                  Voice + Self
+                </Button>
+              </Link>
 
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => {
 
-<Button
-  variant="hero-outline"
-  size="lg"
-  onClick={() => {
+                  /*
+                   * Start a completely new
+                   * Complete Wellness Analysis.
+                   */
 
-    // Remove previous Complete Analysis data
-    localStorage.removeItem("questionnaire_score");
-    localStorage.removeItem("face_score");
-    localStorage.removeItem("voice_score");
+                  localStorage.removeItem(
+                    "questionnaire_score"
+                  );
 
-    localStorage.removeItem("assessmentSubmitted");
-    localStorage.removeItem("assessmentResult");
+                  localStorage.removeItem(
+                    "face_score"
+                  );
 
-    navigate("/complete-analysis");
-  }}
->
-  <Brain className="w-5 h-5" />
-  Complete Analysis
-</Button>
+                  localStorage.removeItem(
+                    "voice_score"
+                  );
+
+                  localStorage.removeItem(
+                    "assessmentSubmitted"
+                  );
+
+                  localStorage.removeItem(
+                    "assessmentResult"
+                  );
+
+                  navigate(
+                    "/complete-analysis"
+                  );
+                }}
+              >
+                <Brain className="w-5 h-5" />
+                Complete Analysis
+              </Button>
+
             </div>
+
           </motion.div>
 
+
+          {/* RIGHT SIDE — HERO IMAGE */}
+
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{
+              opacity: 0,
+              scale: 0.95,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+            }}
             transition={{
               duration: 0.8,
               delay: 0.2,
@@ -223,6 +280,7 @@ const Index = () => {
             }}
             className="relative"
           >
+
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 rounded-[32px] blur-3xl" />
 
             <img
@@ -230,12 +288,20 @@ const Index = () => {
               alt="Students relaxing and meditating in a peaceful setting"
               className="relative rounded-[32px] shadow-float w-full"
             />
+
           </motion.div>
+
         </div>
+
       </section>
 
-      {/* FEATURE CARDS */}
+
+      {/* ========================================= */}
+      {/* FEATURE CARDS                             */}
+      {/* ========================================= */}
+
       <section className="container mx-auto px-4 pb-24">
+
         <motion.div
           variants={container}
           initial="hidden"
@@ -246,36 +312,60 @@ const Index = () => {
           }}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {features.map((f) => (
-            <motion.div key={f.title} variants={item}>
-              <Link
-                to={f.link}
-                className="group block p-8 bg-card rounded-[24px] border border-transparent hover:border-primary/10 transition-all shadow-soft hover:shadow-float h-full"
+
+          {features.map((feature) => {
+
+            const Icon = feature.icon;
+
+            return (
+              <motion.div
+                key={feature.title}
+                variants={item}
               >
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-                  <f.icon className="w-6 h-6 text-primary" />
-                </div>
 
-                <h3 className="text-xl font-semibold mb-2">
-                  {f.title}
-                </h3>
+                <Link
+                  to={feature.link}
+                  className="group block p-8 bg-card rounded-[24px] border border-transparent hover:border-primary/10 transition-all shadow-soft hover:shadow-float h-full"
+                >
 
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  {f.desc}
-                </p>
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
 
-                <span className="text-primary font-medium flex items-center gap-2 group-hover:gap-3 transition-all text-sm">
-                  Explore <ArrowRight size={16} />
-                </span>
-              </Link>
-            </motion.div>
-          ))}
+                    <Icon className="w-6 h-6 text-primary" />
+
+                  </div>
+
+                  <h3 className="text-xl font-semibold mb-2">
+                    {feature.title}
+                  </h3>
+
+                  <p className="text-muted-foreground leading-relaxed mb-6">
+                    {feature.desc}
+                  </p>
+
+                  <span className="text-primary font-medium flex items-center gap-2 group-hover:gap-3 transition-all text-sm">
+                    Explore
+                    <ArrowRight size={16} />
+                  </span>
+
+                </Link>
+
+              </motion.div>
+            );
+          })}
+
         </motion.div>
+
       </section>
 
-      {/* INFO SECTION */}
+
+      {/* ========================================= */}
+      {/* INFORMATION SECTION                       */}
+      {/* ========================================= */}
+
       <section className="container mx-auto px-4 pb-24">
+
         <div className="rounded-[32px] bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 p-8 md:p-12">
+
           <h2 className="text-3xl font-bold mb-4">
             AI-Assisted Emotional Wellbeing Support
           </h2>
@@ -287,8 +377,13 @@ const Index = () => {
             support system for higher education students.
           </p>
 
+
           <div className="mt-6 grid gap-4 md:grid-cols-3">
+
+            {/* FACE */}
+
             <div className="rounded-2xl bg-white/70 p-5 border">
+
               <h3 className="font-semibold text-lg mb-2">
                 Face Analysis
               </h3>
@@ -297,9 +392,14 @@ const Index = () => {
                 Detects facial emotional cues and provides emotional
                 wellbeing support indicators.
               </p>
+
             </div>
 
+
+            {/* VOICE */}
+
             <div className="rounded-2xl bg-white/70 p-5 border">
+
               <h3 className="font-semibold text-lg mb-2">
                 Voice Analysis
               </h3>
@@ -308,9 +408,14 @@ const Index = () => {
                 Detects vocal emotional cues and provides emotional
                 wellbeing support indicators.
               </p>
+
             </div>
 
+
+            {/* COMBINED */}
+
             <div className="rounded-2xl bg-white/70 p-5 border">
+
               <h3 className="font-semibold text-lg mb-2">
                 Combined Wellbeing Analysis
               </h3>
@@ -319,22 +424,39 @@ const Index = () => {
                 Combines AI emotional cues with self-assessment for
                 improved emotional wellbeing analysis.
               </p>
+
             </div>
+
           </div>
+
         </div>
+
       </section>
 
-      {/* FOOTER QUOTE */}
+
+      {/* ========================================= */}
+      {/* FOOTER QUOTE                              */}
+      {/* ========================================= */}
+
       <section className="container mx-auto px-4 pb-24 text-center">
+
         <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          initial={{
+            opacity: 0,
+          }}
+          whileInView={{
+            opacity: 1,
+          }}
+          viewport={{
+            once: true,
+          }}
           className="text-muted-foreground text-lg italic"
         >
           "Take a deep breath, you're doing great." 🌿
         </motion.p>
+
       </section>
+
     </div>
   );
 };

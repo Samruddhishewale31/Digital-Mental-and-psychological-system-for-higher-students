@@ -1,48 +1,34 @@
 import {
   Navigate,
   Outlet,
-  useLocation,
 } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
 
-const ProtectedRoute = () => {
+const PublicAuthRoute = () => {
   const { user, loading } = useAuth();
-  const location = useLocation();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
+
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
 
           <p className="text-muted-foreground">
-            Checking your session...
+            Loading...
           </p>
+
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <Navigate
-        to="/auth"
-        replace
-        state={{
-          from: location.pathname,
-        }}
-      />
-    );
+  if (user) {
+    return <Navigate to="/home" replace />;
   }
 
-  return (
-    <>
-      <Navbar />
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default PublicAuthRoute;
