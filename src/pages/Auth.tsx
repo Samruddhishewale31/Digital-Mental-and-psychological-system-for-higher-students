@@ -489,6 +489,36 @@ const Auth = () => {
 
           </div>
 
+          {/* Admin Login */}
+
+          {!isRegister && (
+            <div className="mt-7">
+
+              <div className="relative flex items-center mb-5">
+                <div className="flex-grow border-t border-border" />
+
+                <span className="px-3 text-xs text-muted-foreground bg-card">
+                  ADMIN ACCESS
+                </span>
+
+                <div className="flex-grow border-t border-border" />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate("/admin-login")}
+                className="w-full rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-primary font-medium hover:bg-primary/10 transition"
+              >
+                Login as Admin
+              </button>
+
+              <p className="mt-2 text-center text-xs text-muted-foreground">
+                For authorized MindEase administrators only.
+              </p>
+
+            </div>
+          )}
+
           {/* Back home */}
 
           <div className="mt-5 text-center">
