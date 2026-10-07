@@ -42,6 +42,9 @@ import AdminAssessment from "./pages/AdminAssessment";
 import AdminMentalHealth from "./pages/AdminMentalHealth";
 import AdminTrends from "./pages/AdminTrends";
 import AdminParticipation from "./pages/AdminParticipation";
+import AdminAcademicCalendar from "./pages/AdminAcademicCalendar";
+import AdminExamSchedule from "./pages/AdminExamSchedule";
+import AdminCommonTestResults from "./pages/AdminCommonTestResults";
 
 const queryClient = new QueryClient();
 
@@ -135,6 +138,34 @@ const AppContent = () => {
           element={
             <AdminProtectedRoute>
               <AdminParticipation />
+            </AdminProtectedRoute>
+          }
+        />
+
+        {/* Curriculum */}
+        <Route
+          path="/admin/curriculum/academic-calendar"
+          element={
+            <AdminProtectedRoute>
+              <AdminAcademicCalendar />
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/curriculum/exam-schedule"
+          element={
+            <AdminProtectedRoute>
+              <AdminExamSchedule />
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/curriculum/common-test-results"
+          element={
+            <AdminProtectedRoute>
+              <AdminCommonTestResults />
             </AdminProtectedRoute>
           }
         />
