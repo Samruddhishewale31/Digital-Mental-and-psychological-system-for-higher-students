@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+
 import {
   Brain,
   CheckCircle,
   AlertTriangle,
 } from "lucide-react";
 
+import {
+  saveCompleteAssessment,
+  saveWellnessReport,
+} from "@/utils/historyStorage";
+
 type Result = {
   questionnaire: number;
+  questionnairePercentage: number;
   face: number;
   voice: number;
   overall: number;
@@ -15,33 +22,37 @@ type Result = {
 };
 
 export default function CompleteAnalysis() {
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [result, setResult] = useState<Result | null>(null);
-  const [loading, setLoading] = useState(true);
-useEffect(() => {
-  console.log("===== SELF ASSESSMENT =====");
-  console.log("location.state =", location.state);
-  console.log(
-    "assessmentSubmitted =",
-    localStorage.getItem("assessmentSubmitted")
-  );
-  console.log(
-    "questionnaire_score =",
-    localStorage.getItem("questionnaire_score")
-  );
+  const [result, setResult] =
+    useState<Result | null>(null);
 
-  // ...your existing code...
-}, [location]);
+  const [loading, setLoading] =
+    useState(true);
+
   useEffect(() => {
 
-  const questionnaire = localStorage.getItem("questionnaire_score");
-  const face = localStorage.getItem("face_score");
-  const voice = localStorage.getItem("voice_score");
+    const questionnaire =
+      localStorage.getItem(
+        "questionnaire_score"
+      );
 
-  // First visit from Home
-  if (!location.state?.generateReport) {
+    const face =
+      localStorage.getItem(
+        "face_score"
+      );
+
+    const voice =
+      localStorage.getItem(
+        "voice_score"
+      );
+
+    /*
+      Complete Analysis intentionally
+      requires all three components.
+    */
 
     if (!questionnaire) {
 
@@ -76,70 +87,230 @@ useEffect(() => {
       return;
     }
 
-  }
+    generateReport();
 
-  generateReport();
+  }, [location.state, navigate]);
 
-}, [location.state, navigate]);
+  const generateReport = () => {
 
-  const generateReport = async () => {
-    const questionnaireValue = localStorage.getItem("questionnaire_score");
-    const faceValue = localStorage.getItem("face_score");
-    const voiceValue = localStorage.getItem("voice_score");
-
-    
-
-    const questionnaire = Number(questionnaireValue);
-    const face = Number(faceValue);
-    const voice = Number(voiceValue);
-
-    try {
-      const response = await fetch(
-        "http://127.0.0.1:5000/final-risk",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            questionnaire_score: questionnaire,
-            face_score: face,
-            voice_score: voice,
-          }),
-        }
+    const questionnaire =
+      Number(
+        localStorage.getItem(
+          "questionnaire_score"
+        )
       );
 
-      if (!response.ok) {
-        throw new Error("Backend not running");
-      }
-
-      const data = await response.json();
-
-      setResult({
-        questionnaire,
-        face,
-        voice,
-        overall: data.overall_score,
-        risk: data.risk_level,
-      });
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        "Unable to generate the final report.\n\nPlease make sure the Flask backend is running."
+    const face =
+      Number(
+        localStorage.getItem(
+          "face_score"
+        )
       );
 
-      alert(
-  "Unable to generate the report.\nPlease make sure the backend is running."
-);
-    } finally {
-      setLoading(false);
+    const voice =
+      Number(
+        localStorage.getItem(
+          "voice_score"
+        )
+      );
+
+    /*
+      Questionnaire = 0–30
+      Face = 0–100
+      Voice = 0–100
+    */
+
+    const questionnairePercentage =
+      (questionnaire / 30) * 100;
+
+    /*
+      Weightage
+      Self = 60%
+      Face = 20%
+      Voice = 20%
+    */
+
+    const questionnaireWeighted =
+      questionnairePercentage * 0.60;
+
+    const faceWeighted =
+      face * 0.20;
+
+    const voiceWeighted =
+      voice * 0.20;
+
+    const overall =
+      Number(
+        (
+          questionnaireWeighted +
+          faceWeighted +
+          voiceWeighted
+        ).toFixed(2)
+      );
+
+    let risk = "";
+
+    if (overall < 30) {
+
+      risk = "Low Risk";
+
+    } else if (overall < 60) {
+
+      risk = "Moderate Risk";
+
+    } else {
+
+      risk = "High Risk";
+
     }
+
+    /*
+      SAVE COMPLETE HISTORY
+    */
+
+    saveCompleteAssessment({
+
+      questionnaireScore:
+        questionnaire,
+
+      questionnairePercentage:
+        Number(
+          questionnairePercentage.toFixed(2)
+        ),
+
+      faceScore:
+        face,
+
+      voiceScore:
+        voice,
+
+      overallScore:
+        overall,
+
+      riskLevel:
+        risk,
+
+      faceEmotion:
+        localStorage.getItem(
+          "face_emotion"
+        ) || "",
+
+      faceObservation:
+        localStorage.getItem(
+          "face_observation"
+        ) || "",
+
+      voiceEmotion:
+        localStorage.getItem(
+          "voice_emotion"
+        ) || "",
+
+      voiceCue:
+        localStorage.getItem(
+          "wellbeing_cue"
+        ) ||
+        localStorage.getItem(
+          "voice_cue"
+        ) ||
+        "",
+    });
+
+    /*
+      SAVE TO UNIVERSAL PROGRESS HISTORY
+    */
+
+    saveWellnessReport({
+
+      assessmentType:
+        "Complete Analysis",
+
+      questionnaireScore:
+        questionnaire,
+
+      questionnairePercentage:
+        Number(
+          questionnairePercentage.toFixed(2)
+        ),
+
+      faceScore:
+        face,
+
+      faceEmotion:
+        localStorage.getItem(
+          "face_emotion"
+        ) || "",
+
+      faceConfidence:
+        Number(
+          localStorage.getItem(
+            "face_confidence"
+          ) || 0
+        ),
+
+      faceObservation:
+        localStorage.getItem(
+          "face_observation"
+        ) || "",
+
+      voiceScore:
+        voice,
+
+      voiceEmotion:
+        localStorage.getItem(
+          "voice_emotion"
+        ) || "",
+
+      voiceConfidence:
+        Number(
+          localStorage.getItem(
+            "voice_confidence"
+          ) || 0
+        ),
+
+      voiceCue:
+        localStorage.getItem(
+          "wellbeing_cue"
+        ) ||
+        localStorage.getItem(
+          "voice_cue"
+        ) ||
+        "",
+
+      overallScore:
+        overall,
+
+      riskLevel:
+        risk,
+    });
+
+    setResult({
+
+      questionnaire,
+
+      questionnairePercentage:
+        Number(
+          questionnairePercentage.toFixed(2)
+        ),
+
+      face,
+
+      voice,
+
+      overall,
+
+      risk,
+    });
+
+    setLoading(false);
+
   };
 
   if (loading) {
+
     return (
+
       <div className="min-h-screen flex items-center justify-center">
+
         <Brain
           size={60}
           className="text-purple-600 animate-pulse"
@@ -148,13 +319,19 @@ useEffect(() => {
         <h2 className="ml-5 text-xl">
           Generating Complete Analysis...
         </h2>
+
       </div>
+
     );
+
   }
 
-  if (!result) return null;
+  if (!result) {
+    return null;
+  }
 
   return (
+
     <div className="min-h-screen bg-[#f8f6ff] px-6 py-12">
 
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-lg p-10">
@@ -171,7 +348,7 @@ useEffect(() => {
           </h1>
 
           <p className="mt-3 text-gray-600">
-            Combined AI analysis using Self Assessment,
+            Combined analysis using Self Assessment,
             Facial Emotion Analysis and Voice Analysis.
           </p>
 
@@ -181,17 +358,22 @@ useEffect(() => {
 
           <Card
             title="Self Assessment"
-            value={result.questionnaire}
+            value={
+              result.questionnairePercentage
+            }
+            subtitle={`${result.questionnaire}/30`}
           />
 
           <Card
             title="Face Analysis"
             value={result.face}
+            subtitle="AI Score"
           />
 
           <Card
             title="Voice Analysis"
             value={result.voice}
+            subtitle="AI Score"
           />
 
         </div>
@@ -213,33 +395,99 @@ useEffect(() => {
 
         </div>
 
+        <div className="mt-8 rounded-2xl border bg-gray-50 p-6">
+
+          <h2 className="text-xl font-bold mb-5">
+            Analysis Weightage
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-5">
+
+            <div className="text-center">
+
+              <p className="text-gray-500">
+                Self Assessment
+              </p>
+
+              <p className="text-2xl font-bold mt-2">
+                60%
+              </p>
+
+            </div>
+
+            <div className="text-center">
+
+              <p className="text-gray-500">
+                Face Analysis
+              </p>
+
+              <p className="text-2xl font-bold mt-2">
+                20%
+              </p>
+
+            </div>
+
+            <div className="text-center">
+
+              <p className="text-gray-500">
+                Voice Analysis
+              </p>
+
+              <p className="text-2xl font-bold mt-2">
+                20%
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
         <div className="mt-8 bg-yellow-50 border border-yellow-300 rounded-xl p-6 flex gap-4">
 
-          <AlertTriangle className="text-yellow-600" />
+          <AlertTriangle
+            className="text-yellow-600 flex-shrink-0"
+          />
 
           <p>
-            This AI-generated report provides supportive wellbeing indicators
-            only and should not be considered a medical or psychological
-            diagnosis. Please consult a qualified mental health professional if
-            you have ongoing concerns.
+            This AI-generated report provides
+            supportive wellbeing indicators only
+            and should not be considered a medical
+            or psychological diagnosis.
           </p>
+
+        </div>
+
+        <div className="flex justify-center mt-8">
+
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-3 rounded-xl bg-purple-600 text-white font-semibold hover:opacity-90"
+          >
+            Back To Home
+          </button>
 
         </div>
 
       </div>
 
     </div>
+
   );
 }
 
 function Card({
   title,
   value,
+  subtitle,
 }: {
   title: string;
   value: number;
+  subtitle: string;
 }) {
+
   return (
+
     <div className="rounded-2xl border bg-gray-50 p-6 text-center">
 
       <h3 className="font-bold text-lg">
@@ -247,13 +495,14 @@ function Card({
       </h3>
 
       <p className="text-4xl font-bold text-purple-700 mt-5">
-        {value}
+        {value.toFixed(2)}
       </p>
 
       <p className="text-gray-500 mt-2">
-        AI Score
+        {subtitle}
       </p>
 
     </div>
+
   );
 }

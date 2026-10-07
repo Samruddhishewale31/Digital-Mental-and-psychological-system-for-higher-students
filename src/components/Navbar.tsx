@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 const navItems = [
   { label: "Home", path: "/" },
   { label: "Self Assessment", path: "/assessment" },
+  
   { label: "AI Support Chat", path: "/chat" },
   { label: "Journal", path: "/journal" },
   { label: "Stress Relief", path: "/stress-relief" },
@@ -126,7 +127,6 @@ const Navbar = () => {
         </div>
 
 
-
         {/* Mobile Toggle */}
         <button
           className="lg:hidden p-2"
@@ -142,7 +142,6 @@ const Navbar = () => {
         </button>
 
       </div>
-
 
 
       {/* Mobile Menu */}
@@ -194,7 +193,6 @@ const Navbar = () => {
               </Link>
 
             ))}
-
 
 
             <div className="flex gap-3 pt-3">

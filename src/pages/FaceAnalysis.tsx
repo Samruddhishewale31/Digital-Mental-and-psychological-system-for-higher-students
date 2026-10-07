@@ -2,6 +2,10 @@ import { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Webcam from "react-webcam";
 
+import {
+  saveWellnessReport,
+} from "@/utils/historyStorage";
+
 type FaceResult = {
   status: string;
   emotion: string;
@@ -24,20 +28,25 @@ const videoConstraints = {
 
 export default function FaceAnalysis() {
   const webcamRef = useRef<Webcam | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-const fromComplete =
-  location.state?.fromComplete === true;
+  const fromComplete =
+    location.state?.fromComplete === true;
 
+  const [capturedImage, setCapturedImage] =
+    useState<string | null>(null);
 
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [result, setResult] = useState<FaceResult | null>(null);
+  const [result, setResult] =
+    useState<FaceResult | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const captureImage = () => {
-    const imageSrc = webcamRef.current?.getScreenshot();
+    const imageSrc =
+      webcamRef.current?.getScreenshot();
 
     if (!imageSrc) {
       alert("Please allow camera access.");
@@ -51,7 +60,9 @@ const fromComplete =
   const dataURLtoBlob = (dataUrl: string) => {
     const arr = dataUrl.split(",");
 
-    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+    const mime =
+      arr[0].match(/:(.*?);/)?.[1] ||
+      "image/jpeg";
 
     const bstr = atob(arr[1]);
 
@@ -63,7 +74,9 @@ const fromComplete =
       u8arr[n] = bstr.charCodeAt(n);
     }
 
-    return new Blob([u8arr], { type: mime });
+    return new Blob([u8arr], {
+      type: mime,
+    });
   };
 
   const analyzeFace = async () => {
@@ -75,11 +88,16 @@ const fromComplete =
     try {
       setLoading(true);
 
-      const imageBlob = dataURLtoBlob(capturedImage);
+      const imageBlob =
+        dataURLtoBlob(capturedImage);
 
       const formData = new FormData();
 
-      formData.append("image", imageBlob, "face.jpg");
+      formData.append(
+        "image",
+        imageBlob,
+        "face.jpg"
+      );
 
       const response = await fetch(
         "http://127.0.0.1:5000/predict-face",
@@ -90,22 +108,25 @@ const fromComplete =
       );
 
       if (!response.ok) {
-        throw new Error("Prediction failed.");
+        throw new Error(
+          "Prediction failed."
+        );
       }
-const json = await response.json();
 
-if (json.status === "error") {
-  throw new Error(json.message);
-}
+      const json = await response.json();
 
-const data: FaceResult =
-  json.data ? json.data : json;
+      if (json.status === "error") {
+        throw new Error(json.message);
+      }
 
-setResult(data);
+      const data: FaceResult =
+        json.data ? json.data : json;
 
+      setResult(data);
 
-
-      // Save for final combined report
+      /* ==========================================
+         EXISTING LOCAL STORAGE
+      ========================================== */
 
       localStorage.setItem(
         "analysis_type",
@@ -133,15 +154,37 @@ setResult(data);
       );
 
       localStorage.setItem(
-  "faces_detected",
-  String(data.faces_detected)
-);
+        "faces_detected",
+        String(data.faces_detected)
+      );
 
-// Face analysis completed successfully
-// User can now continue to voice analysis
+      /* ==========================================
+         NEW — SAVE TO PROGRESS HISTORY
+      ========================================== */
+
+      saveWellnessReport({
+        assessmentType: "Face Analysis",
+
+        faceScore: Number(
+          data.face_score
+        ),
+
+        faceEmotion: data.emotion,
+
+        faceConfidence: Number(
+          data.confidence
+        ),
+
+        faceObservation:
+          data.observation,
+      });
+
     } catch (err) {
       console.error(err);
-      alert("Unable to analyze face.");
+
+      alert(
+        "Unable to analyze face."
+      );
     } finally {
       setLoading(false);
     }
@@ -157,21 +200,21 @@ setResult(data);
         </h1>
 
         <p className="mt-4 text-gray-600 leading-7">
-          This module analyzes facial emotional cues such as Happy,
-          Neutral, Sad, Angry, Fear, Surprise and Disgust using
-          Artificial Intelligence.
+          This module analyzes facial emotional
+          cues such as Happy, Neutral, Sad,
+          Angry, Fear, Surprise and Disgust
+          using Artificial Intelligence.
         </p>
 
         <div className="mt-4 rounded-xl border-l-4 border-yellow-500 bg-yellow-50 p-4 text-sm text-gray-700">
-          <strong>Disclaimer:</strong> Face analysis is used only as a
-          supportive emotional indicator. It is <b>not</b> a medical or
-          psychological diagnosis. Final wellbeing assessment combines
-          questionnaire responses with optional face and voice analysis.
+          <strong>Disclaimer:</strong>{" "}
+          Face analysis is used only as a
+          supportive emotional indicator. It is
+          <b> not </b>
+          a medical or psychological diagnosis.
         </div>
 
         <div className="mt-8 grid gap-8 md:grid-cols-2">
-
-          {/* Camera Section */}
 
           <div>
 
@@ -180,13 +223,17 @@ setResult(data);
             </h2>
 
             <div className="overflow-hidden rounded-xl border bg-gray-100">
+
               <Webcam
                 ref={webcamRef}
                 audio={false}
                 screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
+                videoConstraints={
+                  videoConstraints
+                }
                 className="w-full"
               />
+
             </div>
 
             <button
@@ -197,8 +244,6 @@ setResult(data);
             </button>
 
           </div>
-
-          {/* Captured Image */}
 
           <div>
 
@@ -227,13 +272,14 @@ setResult(data);
               disabled={loading}
               className="mt-4 w-full rounded-xl bg-green-600 py-3 font-semibold text-white hover:bg-green-700 disabled:bg-gray-400"
             >
-              {loading ? "Analyzing Face..." : "Analyze Face"}
+              {loading
+                ? "Analyzing Face..."
+                : "Analyze Face"}
             </button>
 
           </div>
 
         </div>
-                {/* ================= RESULT SECTION ================= */}
 
         {result && (
           <div className="mt-10 rounded-2xl border bg-purple-50 p-8 shadow-sm">
@@ -242,30 +288,9 @@ setResult(data);
               Face Analysis Result
             </h2>
 
-            {/* Status */}
-
-            <div className="mt-5 rounded-xl bg-white p-4 border">
-
-              <div className="flex items-center justify-between">
-
-                <span className="font-semibold text-gray-700">
-                  Status
-                </span>
-
-                <span className="rounded-full bg-green-100 px-4 py-1 text-green-700 font-semibold">
-                  {result.status}
-                </span>
-
-              </div>
-
-            </div>
-
-            {/* Main Cards */}
-
             <div className="mt-6 grid gap-5 md:grid-cols-3">
 
               <div className="rounded-xl bg-white p-5 shadow">
-
                 <p className="text-gray-500">
                   Detected Emotion
                 </p>
@@ -273,11 +298,9 @@ setResult(data);
                 <h3 className="mt-2 text-3xl font-bold text-purple-700">
                   {result.emotion}
                 </h3>
-
               </div>
 
               <div className="rounded-xl bg-white p-5 shadow">
-
                 <p className="text-gray-500">
                   Emotion Confidence
                 </p>
@@ -285,11 +308,9 @@ setResult(data);
                 <h3 className="mt-2 text-3xl font-bold text-green-600">
                   {result.confidence}%
                 </h3>
-
               </div>
 
               <div className="rounded-xl bg-white p-5 shadow">
-
                 <p className="text-gray-500">
                   Face Score
                 </p>
@@ -297,41 +318,9 @@ setResult(data);
                 <h3 className="mt-2 text-3xl font-bold text-red-500">
                   {result.face_score}
                 </h3>
-
               </div>
 
             </div>
-
-            {/* Confidence Progress */}
-
-            <div className="mt-8">
-
-              <div className="mb-2 flex justify-between">
-
-                <span className="font-medium text-gray-700">
-                  Prediction Confidence
-                </span>
-
-                <span className="font-semibold">
-                  {result.confidence}%
-                </span>
-
-              </div>
-
-              <div className="h-4 overflow-hidden rounded-full bg-gray-200">
-
-                <div
-                  className="h-4 rounded-full bg-green-500 transition-all duration-700"
-                  style={{
-                    width: `${result.confidence}%`,
-                  }}
-                />
-
-              </div>
-
-            </div>
-
-            {/* Faces */}
 
             <div className="mt-8 rounded-xl border bg-white p-5">
 
@@ -342,7 +331,9 @@ setResult(data);
               <div className="mt-4 space-y-2">
 
                 <p>
-                  <strong>Faces Detected:</strong>{" "}
+                  <strong>
+                    Faces Detected:
+                  </strong>{" "}
                   {result.faces_detected}
                 </p>
 
@@ -354,8 +345,6 @@ setResult(data);
               </div>
 
             </div>
-
-            {/* Observation */}
 
             <div className="mt-8 rounded-xl border-l-4 border-blue-600 bg-blue-50 p-5">
 
@@ -369,8 +358,6 @@ setResult(data);
 
             </div>
 
-            {/* Emotion Probability */}
-
             <div className="mt-8 rounded-xl bg-white p-6 border">
 
               <h3 className="text-lg font-semibold text-purple-700 mb-5">
@@ -379,13 +366,13 @@ setResult(data);
 
               <div className="space-y-4">
 
-                {Object.entries(result.all_predictions).map(
+                {Object.entries(
+                  result.all_predictions
+                ).map(
                   ([emotion, value]) => (
-
                     <div key={emotion}>
 
                       <div className="mb-1 flex justify-between">
-
                         <span className="capitalize font-medium">
                           {emotion}
                         </span>
@@ -393,7 +380,6 @@ setResult(data);
                         <span>
                           {value}%
                         </span>
-
                       </div>
 
                       <div className="h-3 rounded-full bg-gray-200">
@@ -408,15 +394,12 @@ setResult(data);
                       </div>
 
                     </div>
-
                   )
                 )}
 
               </div>
 
             </div>
-
-                        {/* AI Disclaimer */}
 
             <div className="mt-8 rounded-xl border-l-4 border-yellow-500 bg-yellow-50 p-5">
 
@@ -430,82 +413,80 @@ setResult(data);
 
             </div>
 
-            {/* What's Next */}
-
             <div className="mt-8 rounded-xl bg-green-50 border border-green-200 p-6">
 
               <h3 className="text-lg font-semibold text-green-700">
-  Analysis Completed
-</h3>
+                Analysis Completed
+              </h3>
 
-<p className="mt-3 text-gray-700 leading-7">
-  Facial expression analysis has been completed successfully.
-  The detected emotion is only a supportive AI observation and
-  should not be considered a psychological diagnosis.
-</p>
+              <p className="mt-3 text-gray-700 leading-7">
+                Facial expression analysis has
+                been completed successfully.
+              </p>
+
             </div>
 
-            {/* Redirect Box */}
+            <div className="mt-8 rounded-xl bg-purple-700 p-6 text-center text-white">
 
-           <div className="mt-8 rounded-xl bg-purple-700 p-6 text-center text-white">
+              <h3 className="text-xl font-semibold">
+                Face Analysis Completed Successfully
+              </h3>
 
-  <h3 className="text-xl font-semibold">
-    Face Analysis Completed Successfully
-  </h3>
+              <p className="mt-2 text-purple-100">
+                Continue to the Voice Analysis
+                if you want to perform another
+                optional analysis.
+              </p>
 
-  <p className="mt-2 text-purple-100">
-    Continue to the Voice Analysis to complete your wellbeing assessment.
-  </p>
+              <button
+                onClick={() => {
 
-  <button
-  onClick={() => {
+                  if (fromComplete) {
 
-    if (fromComplete) {
+                    navigate(
+                      "/voice-analysis",
+                      {
+                        state: {
+                          fromComplete: true,
+                        },
+                      }
+                    );
 
-      navigate("/voice-analysis", {
-        state: {
-          fromComplete: true,
-        },
-      });
+                  } else {
 
-    } else {
+                    navigate(
+                      "/voice-analysis"
+                    );
 
-      navigate("/voice-analysis");
+                  }
 
-    }
+                }}
+                className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
+              >
+                Continue to Voice Analysis →
+              </button>
 
-  }}
-  className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
->
-  Continue to Voice Analysis →
-</button>
-
-</div>
+            </div>
 
           </div>
         )}
 
-        {/* Footer */}
-
         <div className="mt-10 border-t pt-6 text-center text-sm text-gray-500">
 
           <p>
-            Digital Mental Health & Psychological Support System
+            Digital Mental Health &
+            Psychological Support System
           </p>
 
           <p className="mt-2">
-            AI-assisted Face Analysis • Research Prototype
-          </p>
-
-          <p className="mt-2">
-            This system provides supportive emotional indicators only and
-            should not be used as a substitute for professional mental
-            health assessment or diagnosis.
+            AI-assisted Face Analysis •
+            Research Prototype
           </p>
 
         </div>
 
       </div>
+
     </div>
   );
 }

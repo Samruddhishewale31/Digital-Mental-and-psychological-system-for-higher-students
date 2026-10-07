@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+
 import {
   Music2,
   Mic,
@@ -8,197 +9,135 @@ import {
   Brain,
   Dumbbell,
   Square,
-  Upload
+  Upload,
 } from "lucide-react";
 
+import {
+  saveWellnessReport,
+} from "@/utils/historyStorage";
 
 type VoiceResult = {
-
   voice_emotion: string;
-
   wellbeing_cue: string;
-
   confidence: number;
-
   voice_score: number;
 
-
   features: {
-
     pitch: number;
-
     tone: string;
-
     speaking_speed: number;
-
     pauses: number;
-
     hesitation: string;
-
     voice_confidence: number;
-
   };
-
 };
 
-
-
 const VoiceAnalysis = () => {
+
   const navigate = useNavigate();
   const location = useLocation();
 
-const fromComplete =
-  location.state?.fromComplete === true;
+  const fromComplete =
+    location.state?.fromComplete === true;
 
+  const mediaRecorderRef =
+    useRef<MediaRecorder | null>(null);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef =
+    useRef<Blob[]>([]);
 
-  const audioChunksRef = useRef<Blob[]>([]);
+  const [recording, setRecording] =
+    useState(false);
 
+  const [audioBlob, setAudioBlob] =
+    useState<Blob | null>(null);
 
+  const [audioUrl, setAudioUrl] =
+    useState("");
 
-  const [recording,setRecording] = useState(false);
+  const [result, setResult] =
+    useState<VoiceResult | null>(null);
 
-  const [audioBlob,setAudioBlob] = useState<Blob | null>(null);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [audioUrl,setAudioUrl] = useState("");
+  const startRecording = async () => {
 
-  const [result,setResult] = useState<VoiceResult | null>(null);
-
-  const [loading,setLoading] = useState(false);
-
-
-
-
-
-  const startRecording = async()=>{
-
-
-    try{
-
+    try {
 
       setResult(null);
-
       setAudioBlob(null);
-
       setAudioUrl("");
-
-
 
       const stream =
         await navigator.mediaDevices.getUserMedia({
-
-          audio:true
-
+          audio: true,
         });
-
-
 
       const mimeType =
         MediaRecorder.isTypeSupported(
           "audio/webm"
         )
-        ?
-        "audio/webm"
-        :
-        "";
-
-
+          ? "audio/webm"
+          : "";
 
       const recorder =
         new MediaRecorder(
-
           stream,
-
           mimeType
-          ?
-          {
-            mimeType
-          }
-          :
-          undefined
-
+            ? { mimeType }
+            : undefined
         );
 
+      mediaRecorderRef.current =
+        recorder;
 
+      audioChunksRef.current = [];
 
-      mediaRecorderRef.current = recorder;
+      recorder.ondataavailable =
+        (event) => {
 
+          if (event.data.size > 0) {
 
-      audioChunksRef.current=[];
+            audioChunksRef.current.push(
+              event.data
+            );
 
+          }
 
+        };
 
-
-      recorder.ondataavailable=(event)=>{
-
-
-        if(event.data.size>0)
-
-        {
-
-          audioChunksRef.current.push(
-            event.data
-          );
-
-        }
-
-
-      };
-
-
-
-
-      recorder.onstop=()=>{
-
+      recorder.onstop = () => {
 
         const blob =
           new Blob(
-
             audioChunksRef.current,
-
             {
               type:
-              recorder.mimeType ||
-              "audio/webm"
+                recorder.mimeType ||
+                "audio/webm",
             }
-
           );
 
-
-
         setAudioBlob(blob);
-
 
         setAudioUrl(
           URL.createObjectURL(blob)
         );
 
-
-
         stream
-        .getTracks()
-        .forEach(
-          track=>track.stop()
-        );
-
+          .getTracks()
+          .forEach(
+            (track) => track.stop()
+          );
 
       };
 
-
-
       recorder.start();
-
 
       setRecording(true);
 
-
-
-    }
-
-    catch(error)
-
-    {
+    } catch (error) {
 
       console.error(error);
 
@@ -210,16 +149,9 @@ const fromComplete =
 
   };
 
+  const stopRecording = () => {
 
-
-
-
-  const stopRecording=()=>{
-
-
-    if(mediaRecorderRef.current)
-
-    {
+    if (mediaRecorderRef.current) {
 
       mediaRecorderRef.current.stop();
 
@@ -227,478 +159,394 @@ const fromComplete =
 
     }
 
-
   };
-
-
-
-
-
 
   const analyzeVoice = async () => {
 
-  if (!audioBlob) {
-    alert("Please record audio first.");
-    return;
-  }
+    if (!audioBlob) {
 
-  try {
+      alert(
+        "Please record audio first."
+      );
 
-    setLoading(true);
-
-    const formData = new FormData();
-
-    formData.append(
-      "audio",
-      audioBlob,
-      "voice.webm"
-    );
-
-    const response = await fetch(
-      "http://127.0.0.1:5000/predict-voice",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Voice analysis failed");
+      return;
     }
 
-    const json = await response.json();
-
-    console.log("VOICE RESPONSE:");
-    console.log(json);
-
-    const resultData = json.data ?? json;
-
-    setResult(resultData);
-
-    console.log("Result Data:", resultData);
-console.log("Voice Score:", resultData.voice_score);
-    // Save voice data for final report
-localStorage.setItem(
-  "voice_score",
-  String(resultData.voice_score)
-);
-
-localStorage.setItem(
-  "voice_emotion",
-  resultData.voice_emotion
-);
-
-localStorage.setItem(
-  "voice_confidence",
-  String(resultData.confidence)
-);
-
-localStorage.setItem(
-  "wellbeing_cue",
-  resultData.wellbeing_cue
-);
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert("Unable to analyze voice.");
-
-  } finally {
-
-    setLoading(false);
-
-  }
-
-};
-
-
-
-
-
-
-return (
-
-
-<div className="min-h-screen bg-[#f8f6ff] px-6 py-10">
-
-
-<div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow">
-
-
-
-<h1 className="text-3xl font-bold text-purple-700">
-
-Voice Emotion Analysis
-
-</h1>
-
-
-
-
-<p className="mt-3 text-gray-600">
-
-This AI module analyzes vocal emotional cues including
-pitch, tone, speaking speed, hesitation, pauses and
-voice confidence. It provides supportive indicators only
-and is not a medical diagnosis.
-
-</p>
-
-
-
-
-
-<div className="mt-8 rounded-2xl border bg-gray-50 p-6">
-
-
-<h2 className="text-xl font-semibold">
-
-Record Voice
-
-</h2>
-
-
-
-<p className="mt-2 text-sm text-gray-600">
-
-Speak clearly for 5-10 seconds.
-
-</p>
-
-
-
-
-<div className="mt-6 flex gap-4">
-
-
-{
-
-!recording
-
-?
-
-<button
-
-onClick={startRecording}
-
-className="flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-3 text-white"
-
->
-
-<Mic size={18}/>
-
-Start Recording
-
-</button>
-
-
-:
-
-
-<button
-
-onClick={stopRecording}
-
-className="flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-white"
-
->
-
-<Square size={18}/>
-
-Stop Recording
-
-</button>
-
-
-}
-
-
-
-
-<button
-
-onClick={analyzeVoice}
-
-disabled={!audioBlob || loading}
-
-className="flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-white disabled:bg-gray-400"
-
->
-
-
-<Upload size={18}/>
-
-
-{
-loading
-?
-"Analyzing..."
-:
-"Analyze Voice"
-}
-
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-{
-
-audioUrl &&
-
-<div className="mt-6">
-
-
-<p className="font-medium">
-
-Audio Preview
-
-</p>
-
-
-<audio
-
-controls
-
-src={audioUrl}
-
-className="mt-2 w-full"
-
-/>
-
-
-</div>
-
-}
-
-
-
-</div>
-
-
-
-
-
-
-
-{
-
-result &&
-
-<div className="mt-8 rounded-2xl bg-purple-50 p-6">
-
-
-<h2 className="text-2xl font-bold text-purple-700">
-
-Voice Analysis Result
-
-</h2>
-
-
-
-<div className="mt-5 space-y-3">
-
-
-<p>
-
-<b>Detected Emotion:</b>{" "}
-
-{result.voice_emotion}
-
-</p>
-
-
-
-<p>
-
-<b>Emotion Confidence:</b>{" "}
-
-{result.confidence}%
-
-</p>
-
-
-
-<p>
-
-<b>Voice Score:</b>{" "}
-
-{result.voice_score}
-
-</p>
-
-
-<p>
-
-<b>Wellbeing Cue:</b>{" "}
-
-{result.wellbeing_cue}
-
-</p>
-
-
-</div>
-
-
-
-
-
-
-
-<div className="mt-8 rounded-xl bg-white p-6 shadow">
-
-
-<h3 className="text-xl font-semibold text-purple-700">
-
-Voice Characteristics
-
-</h3>
-
-
-
-<div className="mt-4 space-y-3">
-
-
-<div className="flex items-center gap-3">
-  <Music2 size={20} className="text-purple-600" />
-  <span>
-    <b>Pitch:</b> {result.features.pitch} Hz
-  </span>
-</div>
-
-
-<div className="flex items-center gap-3">
-  <Mic size={20} className="text-purple-600" />
-  <span>
-    <b>Tone:</b> {result.features.tone}
-  </span>
-</div>
-
-
-<div className="flex items-center gap-3">
-  <Zap size={20} className="text-purple-600" />
-  <span>
-    <b>Speaking Speed:</b> {result.features.speaking_speed}
-  </span>
-</div>
-
-
-<div className="flex items-center gap-3">
-  <Pause size={20} className="text-purple-600" />
-  <span>
-    <b>Pauses:</b> {result.features.pauses} sec
-  </span>
-</div>
-
-
-<div className="flex items-center gap-3">
-  <Brain size={20} className="text-purple-600" />
-  <span>
-    <b>Hesitation:</b> {result.features.hesitation}
-  </span>
-</div>
-
-
-<div className="flex items-center gap-3">
-  <Dumbbell size={20} className="text-purple-600" />
-  <span>
-    <b>Voice Confidence:</b> {result.features.voice_confidence}%
-  </span>
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<div className="mt-6 rounded-xl border-l-4 border-yellow-500 bg-yellow-50 p-5">
-
-
-<b>AI Disclaimer</b>
-
-
-<p className="mt-2 text-gray-700">
-
-Voice analysis provides supportive emotional
-observations only and should not be considered
-a psychological diagnosis.
-
-</p>
-
-<div className="mt-8 rounded-xl bg-purple-700 p-6 text-center text-white">
-
-  <h3 className="text-xl font-semibold">
-    Voice Analysis Completed Successfully
-  </h3>
-
-  <p className="mt-2 text-purple-100">
-    Click below to generate your complete wellbeing report.
-  </p>
-
-  <button
-  onClick={() => {
-
-    if (fromComplete) {
-
-      navigate("/complete-analysis", {
-        state: {
-          generateReport: true,
-        },
+    try {
+
+      setLoading(true);
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "audio",
+        audioBlob,
+        "voice.webm"
+      );
+
+      const response =
+        await fetch(
+          "http://127.0.0.1:5000/predict-voice",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Voice analysis failed"
+        );
+
+      }
+
+      const json =
+        await response.json();
+
+      const resultData =
+        json.data ?? json;
+
+      setResult(resultData);
+
+      /* ==========================================
+         EXISTING STORAGE
+      ========================================== */
+
+      localStorage.setItem(
+        "voice_score",
+        String(
+          resultData.voice_score
+        )
+      );
+
+      localStorage.setItem(
+        "voice_emotion",
+        resultData.voice_emotion
+      );
+
+      localStorage.setItem(
+        "voice_confidence",
+        String(
+          resultData.confidence
+        )
+      );
+
+      localStorage.setItem(
+        "wellbeing_cue",
+        resultData.wellbeing_cue
+      );
+
+      /* ==========================================
+         NEW — SAVE VOICE TO PROGRESS HISTORY
+      ========================================== */
+
+      saveWellnessReport({
+        assessmentType:
+          "Voice Analysis",
+
+        voiceScore:
+          Number(
+            resultData.voice_score
+          ),
+
+        voiceEmotion:
+          resultData.voice_emotion,
+
+        voiceConfidence:
+          Number(
+            resultData.confidence
+          ),
+
+        voiceCue:
+          resultData.wellbeing_cue,
       });
 
-    } else {
+    } catch (error) {
 
-      navigate("/voice-combined");
+      console.error(error);
+
+      alert(
+        "Unable to analyze voice."
+      );
+
+    } finally {
+
+      setLoading(false);
 
     }
 
-  }}
-  className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
->
-  {fromComplete
-    ? "Generate Complete Report →"
-    : "View Voice Analysis →"}
-</button>
+  };
 
-</div>
+  return (
 
-</div>
+    <div className="min-h-screen bg-[#f8f6ff] px-6 py-10">
 
+      <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow">
 
+        <h1 className="text-3xl font-bold text-purple-700">
+          Voice Emotion Analysis
+        </h1>
 
-</div>
+        <p className="mt-3 text-gray-600">
+          This AI module analyzes vocal
+          emotional cues including pitch,
+          tone, speaking speed, hesitation,
+          pauses and voice confidence.
+        </p>
 
+        <div className="mt-8 rounded-2xl border bg-gray-50 p-6">
 
-}
+          <h2 className="text-xl font-semibold">
+            Record Voice
+          </h2>
 
+          <p className="mt-2 text-sm text-gray-600">
+            Speak clearly for 5-10 seconds.
+          </p>
 
+          <div className="mt-6 flex gap-4">
 
+            {!recording ? (
 
-</div>
+              <button
+                onClick={startRecording}
+                className="flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-3 text-white"
+              >
+                <Mic size={18} />
+                Start Recording
+              </button>
 
+            ) : (
 
-</div>
+              <button
+                onClick={stopRecording}
+                className="flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-white"
+              >
+                <Square size={18} />
+                Stop Recording
+              </button>
 
+            )}
 
-);
+            <button
+              onClick={analyzeVoice}
+              disabled={!audioBlob || loading}
+              className="flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-white disabled:bg-gray-400"
+            >
+              <Upload size={18} />
 
+              {loading
+                ? "Analyzing..."
+                : "Analyze Voice"}
+            </button>
 
+          </div>
+
+          {audioUrl && (
+
+            <div className="mt-6">
+
+              <p className="font-medium">
+                Audio Preview
+              </p>
+
+              <audio
+                controls
+                src={audioUrl}
+                className="mt-2 w-full"
+              />
+
+            </div>
+
+          )}
+
+        </div>
+
+        {result && (
+
+          <div className="mt-8 rounded-2xl bg-purple-50 p-6">
+
+            <h2 className="text-2xl font-bold text-purple-700">
+              Voice Analysis Result
+            </h2>
+
+            <div className="mt-5 space-y-3">
+
+              <p>
+                <b>Detected Emotion:</b>{" "}
+                {result.voice_emotion}
+              </p>
+
+              <p>
+                <b>Emotion Confidence:</b>{" "}
+                {result.confidence}%
+              </p>
+
+              <p>
+                <b>Voice Score:</b>{" "}
+                {result.voice_score}
+              </p>
+
+              <p>
+                <b>Wellbeing Cue:</b>{" "}
+                {result.wellbeing_cue}
+              </p>
+
+            </div>
+
+            <div className="mt-8 rounded-xl bg-white p-6 shadow">
+
+              <h3 className="text-xl font-semibold text-purple-700">
+                Voice Characteristics
+              </h3>
+
+              <div className="mt-4 space-y-3">
+
+                <div className="flex items-center gap-3">
+                  <Music2
+                    size={20}
+                    className="text-purple-600"
+                  />
+
+                  <span>
+                    <b>Pitch:</b>{" "}
+                    {result.features.pitch} Hz
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Mic
+                    size={20}
+                    className="text-purple-600"
+                  />
+
+                  <span>
+                    <b>Tone:</b>{" "}
+                    {result.features.tone}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Zap
+                    size={20}
+                    className="text-purple-600"
+                  />
+
+                  <span>
+                    <b>Speaking Speed:</b>{" "}
+                    {result.features.speaking_speed}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Pause
+                    size={20}
+                    className="text-purple-600"
+                  />
+
+                  <span>
+                    <b>Pauses:</b>{" "}
+                    {result.features.pauses} sec
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Brain
+                    size={20}
+                    className="text-purple-600"
+                  />
+
+                  <span>
+                    <b>Hesitation:</b>{" "}
+                    {result.features.hesitation}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Dumbbell
+                    size={20}
+                    className="text-purple-600"
+                  />
+
+                  <span>
+                    <b>Voice Confidence:</b>{" "}
+                    {
+                      result.features
+                        .voice_confidence
+                    }%
+                  </span>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="mt-8 rounded-xl border-l-4 border-yellow-500 bg-yellow-50 p-5">
+
+              <b>AI Disclaimer</b>
+
+              <p className="mt-2 text-gray-700">
+                Voice analysis provides supportive
+                emotional observations only and
+                should not be considered a
+                psychological diagnosis.
+              </p>
+
+            </div>
+
+            <div className="mt-8 rounded-xl bg-purple-700 p-6 text-center text-white">
+
+              <h3 className="text-xl font-semibold">
+                Voice Analysis Completed Successfully
+              </h3>
+
+              <p className="mt-2 text-purple-100">
+                You can now view your available
+                progress data.
+              </p>
+
+              <button
+                onClick={() => {
+
+                  if (fromComplete) {
+
+                    navigate(
+                      "/complete-analysis",
+                      {
+                        state: {
+                          generateReport: true,
+                        },
+                      }
+                    );
+
+                  } else {
+
+                    navigate(
+                      "/voice-combined"
+                    );
+
+                  }
+
+                }}
+                className="mt-5 rounded-xl bg-white px-6 py-3 font-semibold text-purple-700 hover:bg-gray-100"
+              >
+                {fromComplete
+                  ? "Generate Complete Report →"
+                  : "View Voice Analysis →"}
+              </button>
+
+            </div>
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
+  );
 };
-
-
 
 export default VoiceAnalysis;

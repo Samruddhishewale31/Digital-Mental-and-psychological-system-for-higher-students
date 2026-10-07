@@ -8,46 +8,66 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "./components/Navbar";
 
 import Index from "./pages/Index";
-import SelfAssessment from "./pages/SelfAssessment";
-import AIChat from "./pages/AIChat";
-import Journal from "./pages/Journal";
-import StressRelief from "./pages/StressRelief";
 import NotFound from "./pages/NotFound";
+import InformedConsent from "./pages/InformedConsent";
+
+import SelfAssessment from "./pages/SelfAssessment";
+import AssessmentHistory from "./pages/AssessmentHistory";
+
+
 
 import FaceAnalysis from "./pages/FaceAnalysis";
 import VoiceAnalysis from "./pages/VoiceAnalysis";
 import FaceCombinedAnalysis from "./pages/FaceCombinedAnalysis";
 import VoiceCombinedAnalysis from "./pages/VoiceCombinedAnalysis";
-
-import RelaxingMusic from "./pages/RelaxingMusic";
-import MoodTracker from "./pages/MoodTracker";
 import CompleteAnalysis from "./pages/CompleteAnalysis";
 
+import AIChat from "./pages/AIChat";
+import Journal from "./pages/Journal";
+
+import StressRelief from "./pages/StressRelief";
 import StressReliefVideos from "./pages/StressReliefVideos";
-import AssessmentHistory from "./pages/AssessmentHistory";
+
+import MoodTracker from "./pages/MoodTracker";
+import RelaxingMusic from "./pages/RelaxingMusic";
 
 import CounsellorList from "./pages/CounsellorList";
 import CounsellorProfile from "./pages/CounsellorProfile";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
+import WellnessCenter from "./pages/WellnessCenter";
 
 const queryClient = new QueryClient();
 
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
+
     <TooltipProvider>
 
+      {/* Toast Notifications */}
       <Toaster />
       <Sonner />
 
+      {/* Navigation Bar */}
       <Navbar />
 
       <Routes>
 
-        {/* Home */}
-        <Route path="/" element={<Index />} />
+        {/* =====================================================
+            HOME
+        ===================================================== */}
 
-        {/* Assessment */}
+        <Route
+          path="/"
+          element={<Index />}
+        />
+
+
+        {/* =====================================================
+            SELF ASSESSMENT
+        ===================================================== */}
+
         <Route
           path="/assessment"
           element={<SelfAssessment />}
@@ -58,19 +78,45 @@ const App = () => (
           element={<AssessmentHistory />}
         />
 
-        {/* AI Chat */}
+
+        {/* =====================================================
+            WELLNESS REPORT
+        ===================================================== */}
+
+        
+
+
+        {/* =====================================================
+            PROGRESS DASHBOARD
+        ===================================================== */}
+
+        
+
+
+        {/* =====================================================
+            AI CHAT
+        ===================================================== */}
+
         <Route
           path="/chat"
           element={<AIChat />}
         />
 
-        {/* Journal */}
+
+        {/* =====================================================
+            JOURNAL
+        ===================================================== */}
+
         <Route
           path="/journal"
           element={<Journal />}
         />
 
-        {/* Stress Relief */}
+
+        {/* =====================================================
+            STRESS RELIEF
+        ===================================================== */}
+
         <Route
           path="/stress-relief"
           element={<StressRelief />}
@@ -81,19 +127,31 @@ const App = () => (
           element={<StressReliefVideos />}
         />
 
-        {/* Face Analysis */}
+
+        {/* =====================================================
+            FACE ANALYSIS
+        ===================================================== */}
+
         <Route
           path="/face-analysis"
           element={<FaceAnalysis />}
         />
 
-        {/* Voice Analysis */}
+
+        {/* =====================================================
+            VOICE ANALYSIS
+        ===================================================== */}
+
         <Route
           path="/voice-analysis"
           element={<VoiceAnalysis />}
         />
 
-        {/* Combined Analysis */}
+
+        {/* =====================================================
+            COMBINED ANALYSIS
+        ===================================================== */}
+
         <Route
           path="/face-combined"
           element={<FaceCombinedAnalysis />}
@@ -109,7 +167,11 @@ const App = () => (
           element={<CompleteAnalysis />}
         />
 
-        {/* Mood & Music */}
+
+        {/* =====================================================
+            MOOD & MUSIC
+        ===================================================== */}
+
         <Route
           path="/mood-tracker"
           element={<MoodTracker />}
@@ -120,7 +182,11 @@ const App = () => (
           element={<RelaxingMusic />}
         />
 
-        {/* Counselling Module */}
+
+        {/* =====================================================
+            COUNSELLING
+        ===================================================== */}
+
         <Route
           path="/counselling"
           element={<CounsellorList />}
@@ -141,7 +207,21 @@ const App = () => (
           element={<MyAppointments />}
         />
 
-        {/* 404 */}
+
+        {/* =====================================================
+            INFORMED CONSENT
+        ===================================================== */}
+
+        <Route
+          path="/informed-consent"
+          element={<InformedConsent />}
+        />
+
+     <Route path="/wellness" element={<WellnessCenter />} />
+        {/* =====================================================
+            404
+        ===================================================== */}
+
         <Route
           path="*"
           element={<NotFound />}
@@ -150,7 +230,9 @@ const App = () => (
       </Routes>
 
     </TooltipProvider>
+
   </QueryClientProvider>
 );
+
 
 export default App;

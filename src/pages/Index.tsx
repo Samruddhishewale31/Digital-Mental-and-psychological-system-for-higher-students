@@ -11,79 +11,73 @@ import {
   AudioLines,
   Brain,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-illustration.png";
 
 const features = [
+
   {
     icon: ClipboardCheck,
     title: "Self Assessment",
     desc: "Understand your stress levels with clinically-inspired screening tools.",
     link: "/assessment",
+    assessmentType: "self",
   },
 
-  // INDIVIDUAL FACE
   {
     icon: Camera,
     title: "Face Analysis",
     desc: "Analyze facial emotional cues and generate a wellbeing support score.",
     link: "/face-analysis",
+    assessmentType: "face",
   },
-
-  // COMBINED FACE
+  
   {
     icon: Camera,
     title: "Face + Self Assessment",
     desc: "Analyze facial emotional cues and combine them with self-assessment for final emotional wellbeing analysis.",
     link: "/face-combined",
+    assessmentType: "face-self",
   },
-
-  // INDIVIDUAL VOICE
   {
     icon: AudioLines,
     title: "Voice Analysis",
     desc: "Analyze vocal emotional cues and generate a wellbeing support score.",
     link: "/voice-analysis",
+    assessmentType: "voice",
   },
-
-  // COMBINED VOICE
   {
     icon: AudioLines,
     title: "Voice + Self Assessment",
     desc: "Analyze vocal emotional cues and combine them with self-assessment for final emotional wellbeing analysis.",
     link: "/voice-combined",
+    assessmentType: "voice-self",
   },
-
-    // COMPLETE ANALYSIS
   {
     icon: Brain,
     title: "Complete Wellness Analysis",
     desc: "Generate an overall emotional wellbeing report by combining self assessment, facial emotional cues and voice analysis.",
     link: "/complete-analysis",
+    assessmentType: "complete",
   },
-
   {
     icon: MessageCircle,
     title: "AI Chat Support",
     desc: "Immediate, anonymous guidance whenever you need it.",
     link: "/chat",
   },
-
   {
     icon: BookOpen,
     title: "Personal Journal",
     desc: "A quiet space for your thoughts. Write whenever you're ready.",
     link: "/journal",
   },
-
   {
     icon: Wind,
     title: "Stress Relief",
     desc: "Breathing exercises and mindfulness activities to reset your focus.",
     link: "/stress-relief",
   },
-
   {
     icon: CalendarCheck,
     title: "Counselling",
@@ -106,7 +100,6 @@ const item = {
     opacity: 0,
     y: 20,
   },
-
   show: {
     opacity: 1,
     y: 0,
@@ -123,13 +116,23 @@ const item = {
 };
 
 const Index = () => {
-
+  
   const navigate = useNavigate();
+
+  const handleAssessmentSelect = (assessmentType: string) => {
+    navigate("/informed-consent", {
+      state: {
+        assessmentType: assessmentType,
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen">
       {/* HERO SECTION */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
+            <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -156,60 +159,75 @@ const Index = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Link to="/assessment">
-                <Button variant="hero" size="lg">
-                  Start Self Assessment
-                </Button>
-              </Link>
 
-              <Link to="/face-analysis">
-                <Button variant="hero-outline" size="lg">
-                  <Camera className="w-5 h-5" />
-                  Face Analysis
-                </Button>
-              </Link>
-
-              <Link to="/voice-analysis">
-                <Button variant="hero-outline" size="lg">
-                  <AudioLines className="w-5 h-5" />
-                  Voice Analysis
-                </Button>
-              </Link>
-
-              <Link to="/face-combined">
-                <Button variant="hero-outline" size="lg">
-                  <Camera className="w-5 h-5" />
-                  Face + Self
-                </Button>
-              </Link>
-
-             <Link to="/voice-combined">
-  <Button variant="hero-outline" size="lg">
-    <AudioLines className="w-5 h-5" />
-    Voice + Self
-  </Button>
-</Link>
-
-
-<Button
+              {/* SELF ASSESSMENT */}
+              <Button
+                variant="hero"
+                size="lg"
+                onClick={() => handleAssessmentSelect("self")}
+              >
+                Start Self Assessment
+              </Button>
+                
+               <Button
   variant="hero-outline"
   size="lg"
-  onClick={() => {
-
-    // Remove previous Complete Analysis data
-    localStorage.removeItem("questionnaire_score");
-    localStorage.removeItem("face_score");
-    localStorage.removeItem("voice_score");
-
-    localStorage.removeItem("assessmentSubmitted");
-    localStorage.removeItem("assessmentResult");
-
-    navigate("/complete-analysis");
-  }}
+  onClick={() => navigate("/wellness")}
 >
   <Brain className="w-5 h-5" />
-  Complete Analysis
+  My Wellness
 </Button>
+
+              {/* FACE ANALYSIS */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("face")}
+              >
+                <Camera className="w-5 h-5" />
+                Face Analysis
+              </Button>
+
+              {/* VOICE ANALYSIS */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("voice")}
+              >
+                <AudioLines className="w-5 h-5" />
+                Voice Analysis
+              </Button>
+
+              {/* FACE + SELF */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("face-self")}
+              >
+                <Camera className="w-5 h-5" />
+                Face + Self
+              </Button>
+
+              {/* VOICE + SELF */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("voice-self")}
+              >
+                <AudioLines className="w-5 h-5" />
+                Voice + Self
+              </Button>
+
+              {/* COMPLETE ANALYSIS */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("complete")}
+              >
+                <Brain className="w-5 h-5" />
+                Complete Analysis
+              </Button>
+
             </div>
           </motion.div>
 
@@ -231,98 +249,11 @@ const Index = () => {
               className="relative rounded-[32px] shadow-float w-full"
             />
           </motion.div>
+
         </div>
-      </section>
+              </section>
 
-      {/* FEATURE CARDS */}
-      <section className="container mx-auto px-4 pb-24">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{
-            once: true,
-            margin: "-100px",
-          }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {features.map((f) => (
-            <motion.div key={f.title} variants={item}>
-              <Link
-                to={f.link}
-                className="group block p-8 bg-card rounded-[24px] border border-transparent hover:border-primary/10 transition-all shadow-soft hover:shadow-float h-full"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-                  <f.icon className="w-6 h-6 text-primary" />
-                </div>
-
-                <h3 className="text-xl font-semibold mb-2">
-                  {f.title}
-                </h3>
-
-                <p className="text-muted-foreground leading-relaxed mb-6">
-                  {f.desc}
-                </p>
-
-                <span className="text-primary font-medium flex items-center gap-2 group-hover:gap-3 transition-all text-sm">
-                  Explore <ArrowRight size={16} />
-                </span>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* INFO SECTION */}
-      <section className="container mx-auto px-4 pb-24">
-        <div className="rounded-[32px] bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 p-8 md:p-12">
-          <h2 className="text-3xl font-bold mb-4">
-            AI-Assisted Emotional Wellbeing Support
-          </h2>
-
-          <p className="text-muted-foreground leading-relaxed text-lg">
-            Our platform combines self-assessment, facial emotional
-            cues, vocal emotional cues, AI-based support chat, and
-            journaling to provide a stigma-free emotional wellbeing
-            support system for higher education students.
-          </p>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl bg-white/70 p-5 border">
-              <h3 className="font-semibold text-lg mb-2">
-                Face Analysis
-              </h3>
-
-              <p className="text-sm text-muted-foreground">
-                Detects facial emotional cues and provides emotional
-                wellbeing support indicators.
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-white/70 p-5 border">
-              <h3 className="font-semibold text-lg mb-2">
-                Voice Analysis
-              </h3>
-
-              <p className="text-sm text-muted-foreground">
-                Detects vocal emotional cues and provides emotional
-                wellbeing support indicators.
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-white/70 p-5 border">
-              <h3 className="font-semibold text-lg mb-2">
-                Combined Wellbeing Analysis
-              </h3>
-
-              <p className="text-sm text-muted-foreground">
-                Combines AI emotional cues with self-assessment for
-                improved emotional wellbeing analysis.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* FOOTER QUOTE */}
       <section className="container mx-auto px-4 pb-24 text-center">
@@ -335,6 +266,7 @@ const Index = () => {
           "Take a deep breath, you're doing great." 🌿
         </motion.p>
       </section>
+
     </div>
   );
 };
