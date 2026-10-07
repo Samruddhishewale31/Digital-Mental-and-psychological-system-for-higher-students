@@ -8,6 +8,7 @@ import {
   Brain,
   RotateCcw,
   Home,
+  FileText,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,10 @@ import { questions, options } from "@/data/questions";
 
 import { calculateAssessment } from "@/utils/assessmentCalculator";
 
-import { saveAssessment } from "@/utils/historyStorage";
+import {
+  saveAssessment,
+  saveWellnessReport,
+} from "@/utils/historyStorage";
 
 import { recommendations } from "@/data/recommendations";
 
@@ -27,12 +31,7 @@ const SelfAssessment = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ==========================================
-  // STATE
-  // ==========================================
-
   const [start, setStart] = useState(false);
-
   const [current, setCurrent] = useState(0);
 
   const [answers, setAnswers] = useState<number[]>(
@@ -41,106 +40,75 @@ const SelfAssessment = () => {
 
   const [submitted, setSubmitted] = useState(false);
 
-  // ==========================================
-  // CHECK IF COMING FROM COMPLETE ANALYSIS
-  // ==========================================
-
-  const fromComplete = location.state?.fromComplete === true;
-
-  // ==========================================
-  // IMPORTANT:
-  // DO NOT AUTOMATICALLY SHOW OLD RESULT
-  // ==========================================
+  /* =====================================================
+     LOAD PREVIOUS ASSESSMENT STATE
+  ===================================================== */
 
   useEffect(() => {
-    console.log("===== SELF ASSESSMENT =====");
-    console.log("Location State:", location.state);
-    console.log(
-      "Assessment Submitted:",
-      localStorage.getItem("assessmentSubmitted")
-    );
-
     /*
-      If user comes from Complete Analysis,
-      directly start the questionnaire.
-
-      Example flow:
-
-      Complete Analysis
-          ↓
-      Self Assessment
-          ↓
-      Questions
-          ↓
-      Face Analysis
-          ↓
-      Voice Analysis
-          ↓
-      Complete Analysis
+      If user came from Complete Analysis,
+      open the questionnaire directly.
     */
-
-    if (fromComplete) {
+    if (location.state?.fromComplete) {
       setStart(true);
       setSubmitted(false);
-      setCurrent(0);
-      setAnswers(Array(questions.length).fill(-1));
+      return;
     }
 
     /*
-      IMPORTANT:
-
-      We intentionally DO NOT check:
-
-      assessmentSubmitted === "true"
-
-      here.
-
-      Otherwise, once the user completes the assessment,
-      opening Self Assessment again would immediately show
-      the old result instead of showing the questions.
+      If a previous assessment was already submitted,
+      show the existing result.
     */
-  }, [fromComplete]);
+    const savedSubmitted =
+      localStorage.getItem("assessmentSubmitted");
 
-  // ==========================================
-  // SELECT ANSWER
-  // ==========================================
+    if (savedSubmitted === "true") {
+      setSubmitted(true);
+      setStart(true);
+    }
+  }, [location]);
+
+  /* =====================================================
+     SELECT ANSWER
+  ===================================================== */
 
   const selectAnswer = (value: number) => {
-    const updated = [...answers];
+    const updatedAnswers = [...answers];
 
-    updated[current] = value;
+    updatedAnswers[current] = value;
 
-    setAnswers(updated);
+    setAnswers(updatedAnswers);
   };
 
-  // ==========================================
-  // SAVED RESULT
-  // ==========================================
+  /* =====================================================
+     GET SAVED RESULT
+  ===================================================== */
 
-  const savedResult = localStorage.getItem("assessmentResult");
+  const savedResult =
+    localStorage.getItem("assessmentResult");
 
   const result =
     submitted && savedResult
       ? JSON.parse(savedResult)
       : calculateAssessment(answers);
 
-  // ==========================================
-  // RECOMMENDATIONS
-  // ==========================================
+  /* =====================================================
+     RECOMMENDATIONS
+  ===================================================== */
 
   const supportRecommendations =
     recommendations[result.riskLevel] || [];
 
-  // ==========================================
-  // PROGRESS
-  // ==========================================
+  /* =====================================================
+     PROGRESS
+  ===================================================== */
 
   const progress =
     ((current + 1) / questions.length) * 100;
 
-  // ==========================================
-  // RISK COLOR
-  // ==========================================
+  /* =====================================================
+     RISK COLOR
+  ===================================================== */
 
   const riskColor = (() => {
     switch (result.riskLevel) {
@@ -153,14 +121,17 @@ const SelfAssessment = () => {
       case "Moderate Risk":
         return "bg-orange-100 text-orange-700";
 
-      default:
+      case "High Risk":
         return "bg-red-100 text-red-700";
+
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   })();
 
-  // ==========================================
-  // RESTART ASSESSMENT
-  // ==========================================
+  /* =====================================================
+     RESTART ASSESSMENT
+  ===================================================== */
 
   const restartAssessment = () => {
     setAnswers(
@@ -168,15 +139,6 @@ const SelfAssessment = () => {
     );
 
     setCurrent(0);
-
-    setSubmitted(false);
-
-    setStart(true);
-
-    /*
-      We remove only the submitted flag/result
-      so the user can take a completely new assessment.
-    */
 
     localStorage.removeItem(
       "assessmentSubmitted"
@@ -186,18 +148,13 @@ const SelfAssessment = () => {
       "assessmentResult"
     );
 
-    localStorage.removeItem(
-      "questionnaire_score"
-    );
-
-    localStorage.removeItem(
-      "questionnaire_risk"
-    );
+    setSubmitted(false);
+    setStart(false);
   };
 
-  // ==========================================
-  // RESULT PAGE
-  // ==========================================
+  /* =====================================================
+     RESULT PAGE
+  ===================================================== */
 
   if (submitted) {
     const previousHistory = JSON.parse(
@@ -217,12 +174,11 @@ const SelfAssessment = () => {
       <div className="container mx-auto px-5 py-12 flex justify-center">
         <div className="max-w-5xl w-full bg-card rounded-3xl shadow-lg p-10">
 
-          {/* =====================================
+          {/* =================================================
               HEADER
-          ===================================== */}
+          ================================================= */}
 
           <div className="text-center">
-
             <CheckCircle
               className="mx-auto text-green-600 mb-5"
               size={70}
@@ -235,15 +191,13 @@ const SelfAssessment = () => {
             <p className="mt-3 text-muted-foreground">
               Thank you for completing the assessment.
             </p>
-
           </div>
 
-          {/* =====================================
+          {/* =================================================
               OVERALL RISK
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10 text-center">
-
             <h2 className="text-xl font-semibold">
               Overall Screening Result
             </h2>
@@ -253,15 +207,13 @@ const SelfAssessment = () => {
             >
               {result.riskLevel}
             </div>
-
           </div>
 
-          {/* =====================================
+          {/* =================================================
               SUMMARY
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10 rounded-2xl bg-muted p-6">
-
             <h3 className="font-bold text-lg">
               Assessment Summary
             </h3>
@@ -271,7 +223,6 @@ const SelfAssessment = () => {
             </p>
 
             <div className="mt-6 flex justify-between">
-
               <span className="font-medium">
                 Overall Score
               </span>
@@ -279,17 +230,14 @@ const SelfAssessment = () => {
               <span className="font-bold">
                 {result.totalScore}/30
               </span>
-
             </div>
-
           </div>
 
-          {/* =====================================
+          {/* =================================================
               EMOTIONAL INDICATORS
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10">
-
             <h2 className="text-2xl font-bold mb-6">
               Emotional Wellbeing Indicators
             </h2>
@@ -302,45 +250,37 @@ const SelfAssessment = () => {
             />
 
             <div className="mt-6">
-
               <ProgressBar
                 label="Stress & Anxiety Indicators"
                 value={result.anxietyScore}
                 max={12}
                 color="bg-blue-500"
               />
-
             </div>
-
           </div>
 
-          {/* =====================================
+          {/* =================================================
               PRIMARY PATTERN
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10">
-
             <h2 className="text-xl font-bold">
               Primary Emotional Pattern
             </h2>
 
             <div className="mt-4 rounded-xl border bg-blue-50 border-blue-200 p-5">
-
               <p>
                 {result.pattern}
               </p>
-
             </div>
-
           </div>
 
-          {/* =====================================
-              HIGH / MODERATE RISK
-          ===================================== */}
+          {/* =================================================
+              MODERATE / HIGH RISK
+          ================================================= */}
 
           {(result.riskLevel === "High Risk" ||
             result.riskLevel === "Moderate Risk") && (
-
             <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
 
               <h2 className="text-xl font-bold text-red-700">
@@ -354,15 +294,13 @@ const SelfAssessment = () => {
               </p>
 
             </div>
-
           )}
 
-          {/* =====================================
+          {/* =================================================
               REPEATED ELEVATED SCORES
-          ===================================== */}
+          ================================================= */}
 
           {elevatedCount >= 3 && (
-
             <div className="mt-10 rounded-2xl border border-red-300 bg-red-50 p-6">
 
               <h2 className="text-xl font-bold text-red-700">
@@ -370,22 +308,20 @@ const SelfAssessment = () => {
               </h2>
 
               <p className="mt-4 text-red-700 leading-7">
-                Your assessment scores have remained
-                elevated over multiple assessments.
-                We recommend scheduling a consultation
-                with a qualified mental health professional.
+                Your assessment scores have remained elevated
+                over multiple assessments. We recommend
+                scheduling a consultation with a qualified
+                mental health professional.
               </p>
 
             </div>
-
           )}
 
-          {/* =====================================
+          {/* =================================================
               RECOMMENDATIONS
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10">
-
             <h2 className="text-2xl font-bold mb-6">
               Recommended Support
             </h2>
@@ -393,7 +329,6 @@ const SelfAssessment = () => {
             <div className="grid md:grid-cols-2 gap-5">
 
               {supportRecommendations.map((item) => (
-
                 <button
                   key={item.title}
                   onClick={() =>
@@ -403,22 +338,12 @@ const SelfAssessment = () => {
                       },
                     })
                   }
-                  className={`
-                    p-5
-                    rounded-2xl
-                    border
-                    text-left
-                    transition-all
-                    duration-300
-                    hover:shadow-lg
-                    hover:-translate-y-1
-                    ${
-                      item.title ===
-                      "Professional Counselling"
-                        ? "border-red-400 bg-red-50"
-                        : ""
-                    }
-                  `}
+                  className={`p-5 rounded-2xl border text-left transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+                    item.title ===
+                    "Professional Counselling"
+                      ? "border-red-400 bg-red-50"
+                      : ""
+                  }`}
                 >
 
                   <div className="text-4xl">
@@ -434,16 +359,14 @@ const SelfAssessment = () => {
                   </p>
 
                 </button>
-
               ))}
 
             </div>
-
           </div>
 
-          {/* =====================================
+          {/* =================================================
               MOTIVATION
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10 rounded-2xl border border-blue-200 bg-blue-50 p-6">
 
@@ -452,44 +375,51 @@ const SelfAssessment = () => {
             </h3>
 
             <p className="mt-4 leading-7 text-blue-700">
-              Mental wellbeing changes over time.
-              Taking small steps like maintaining
-              healthy routines, talking to trusted
-              people, practicing relaxation, and
-              monitoring your emotions can positively
-              impact your wellbeing.
+              Mental wellbeing changes over time. Taking small
+              steps like maintaining healthy routines, talking
+              to trusted people, practicing relaxation, and
+              monitoring your emotions can positively impact
+              your wellbeing.
             </p>
 
           </div>
 
-          {/* =====================================
+          {/* =================================================
               DISCLAIMER
-          ===================================== */}
+          ================================================= */}
 
           <div className="mt-10 rounded-xl bg-muted p-5 text-sm leading-7">
 
-            <strong>Disclaimer</strong>
+            <strong>
+              Disclaimer
+            </strong>
 
             <br />
             <br />
 
-            This assessment is intended for educational
-            and screening purposes only.
+            This assessment is intended for educational and
+            screening purposes only.
 
-            It does not diagnose depression, anxiety
-            or any other mental health condition.
+            <br />
+            <br />
 
-            If your emotional distress becomes severe
-            or persists, please consult a qualified
-            mental health professional.
+            It does not diagnose depression, anxiety or any
+            other mental health condition.
+
+            <br />
+            <br />
+
+            If your emotional distress becomes severe or
+            persists, please consult a qualified mental health
+            professional.
 
           </div>
 
-          {/* =====================================
+          {/* =================================================
               BUTTONS
-          ===================================== */}
+          ================================================= */}
 
-          <div className="flex justify-center gap-4 mt-10">
+          <div className="flex justify-center gap-4 mt-10 flex-wrap">
 
             <Button
               variant="outline"
@@ -500,6 +430,14 @@ const SelfAssessment = () => {
             </Button>
 
             <Button
+              onClick={() => navigate("/wellness")}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              View Wellness Report
+            </Button>
+
+            <Button
+              variant="outline"
               onClick={() => navigate("/")}
             >
               <Home className="mr-2 h-4 w-4" />
@@ -513,9 +451,9 @@ const SelfAssessment = () => {
     );
   }
 
-  // ==========================================
-  // INTRODUCTION PAGE
-  // ==========================================
+  /* =====================================================
+     INTRODUCTION PAGE
+  ===================================================== */
 
   if (!start) {
     return (
@@ -533,14 +471,16 @@ const SelfAssessment = () => {
           </h1>
 
           <p className="mt-6 text-muted-foreground leading-8">
-            This mental wellness screening is designed
-            for college students and is inspired by
-            validated mental health screening
-            questionnaires.
+            This mental wellness screening is designed for
+            college students and is inspired by validated
+            mental health screening questionnaires.
 
-            It helps identify possible emotional
-            wellbeing concerns related to stress,
-            low mood, anxiety and academic pressure.
+            <br />
+            <br />
+
+            It helps identify possible emotional wellbeing
+            concerns related to stress, low mood, anxiety
+            and academic pressure.
           </p>
 
           <Button
@@ -549,33 +489,28 @@ const SelfAssessment = () => {
             onClick={() => {
               setStart(true);
               setSubmitted(false);
-              setCurrent(0);
-              setAnswers(
-                Array(questions.length).fill(-1)
-              );
             }}
           >
             Start Assessment
           </Button>
 
         </div>
-
       </div>
     );
   }
 
-  // ==========================================
-  // QUESTION SCREEN
-  // ==========================================
+  /* =====================================================
+     QUESTION SCREEN
+  ===================================================== */
 
   return (
     <div className="container mx-auto py-16 flex justify-center">
 
       <div className="max-w-2xl w-full">
 
-        {/* =====================================
-            PROGRESS HEADER
-        ===================================== */}
+        {/* =================================================
+            PROGRESS
+        ================================================= */}
 
         <div className="flex justify-between items-center mb-3">
 
@@ -596,9 +531,9 @@ const SelfAssessment = () => {
           showScore={false}
         />
 
-        {/* =====================================
+        {/* =================================================
             QUESTION
-        ===================================== */}
+        ================================================= */}
 
         <div className="mt-8">
 
@@ -611,13 +546,11 @@ const SelfAssessment = () => {
 
         </div>
 
-        {/* =====================================
+        {/* =================================================
             NAVIGATION
-        ===================================== */}
+        ================================================= */}
 
         <div className="flex justify-between mt-8">
-
-          {/* BACK */}
 
           <Button
             variant="outline"
@@ -629,8 +562,6 @@ const SelfAssessment = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-
-          {/* NEXT / SUBMIT */}
 
           {current < questions.length - 1 ? (
 
@@ -646,34 +577,44 @@ const SelfAssessment = () => {
 
           ) : (
 
+            /* =================================================
+               SUBMIT
+            ================================================= */
+
             <Button
               disabled={answers.includes(-1)}
               onClick={() => {
 
-                // Calculate final questionnaire result
+                /* ---------------------------------------------
+                   1. CALCULATE FINAL SELF RESULT
+                --------------------------------------------- */
+
                 const finalResult =
                   calculateAssessment(answers);
 
-                // Save history
+                /* ---------------------------------------------
+                   2. SAVE NORMAL SELF-ASSESSMENT HISTORY
+                --------------------------------------------- */
+
                 saveAssessment(finalResult);
 
-                // Save complete result
+                /* ---------------------------------------------
+                   3. SAVE CURRENT RESULT
+                --------------------------------------------- */
+
                 localStorage.setItem(
                   "assessmentResult",
                   JSON.stringify(finalResult)
                 );
 
-                // Mark questionnaire completed
                 localStorage.setItem(
                   "assessmentSubmitted",
                   "true"
                 );
 
-                // IMPORTANT:
-                // This score is used by:
-                // Face + Self
-                // Voice + Self
-                // Complete Analysis
+                /* ---------------------------------------------
+                   4. SAVE QUESTIONNAIRE SCORE
+                --------------------------------------------- */
 
                 localStorage.setItem(
                   "questionnaire_score",
@@ -685,27 +626,235 @@ const SelfAssessment = () => {
                   finalResult.riskLevel
                 );
 
-                // =================================
-                // COMPLETE ANALYSIS FLOW
-                // =================================
+                /* ---------------------------------------------
+                   5. COMPLETE ANALYSIS FLOW
+                --------------------------------------------- */
 
-                if (fromComplete) {
+                if (location.state?.fromComplete) {
 
-                  navigate("/face-analysis", {
-                    state: {
-                      fromComplete: true,
-                    },
-                  });
+                  navigate(
+                    "/face-analysis",
+                    {
+                      state: {
+                        fromComplete: true,
+                      },
+                    }
+                  );
 
                   return;
                 }
 
-                // =================================
-                // NORMAL SELF ASSESSMENT
-                // =================================
+                /* ---------------------------------------------
+                   6. CHECK PREVIOUS ANALYSIS TYPE
+                --------------------------------------------- */
 
-                setSubmitted(true);
+                const analysisType =
+                  localStorage.getItem(
+                    "analysis_type"
+                  );
+
+                /* ---------------------------------------------
+                   7. READ FACE DATA
+                --------------------------------------------- */
+
+                const faceScore =
+                  localStorage.getItem(
+                    "face_score"
+                  );
+
+                const faceEmotion =
+                  localStorage.getItem(
+                    "face_emotion"
+                  );
+
+                const faceConfidence =
+                  localStorage.getItem(
+                    "face_confidence"
+                  );
+
+                /* ---------------------------------------------
+                   8. READ VOICE DATA
+                --------------------------------------------- */
+
+                const voiceScore =
+                  localStorage.getItem(
+                    "voice_score"
+                  );
+
+                const voiceEmotion =
+                  localStorage.getItem(
+                    "voice_emotion"
+                  );
+
+                const voiceCue =
+                  localStorage.getItem(
+                    "voice_cue"
+                  );
+
+                /* ---------------------------------------------
+                   9. FACE + SELF
+                --------------------------------------------- */
+
+                if (
+                  analysisType === "face" &&
+                  faceScore !== null
+                ) {
+
+                  saveWellnessReport({
+                    assessmentType:
+                      "Face + Self",
+
+                    questionnaireScore:
+                      finalResult.totalScore,
+
+                    questionnairePercentage:
+                      Math.round(
+                        (finalResult.totalScore / 30) * 100
+                      ),
+
+                    depressionScore:
+                      finalResult.depressionScore,
+
+                    anxietyScore:
+                      finalResult.anxietyScore,
+
+                    summary:
+                      finalResult.summary,
+
+                    pattern:
+                      finalResult.pattern,
+
+                    faceScore:
+                      Number(faceScore),
+
+                    faceEmotion:
+                      faceEmotion || undefined,
+
+                    faceConfidence:
+                      faceConfidence !== null
+                        ? Number(faceConfidence)
+                        : undefined,
+
+                    faceObservation:
+                      "Facial emotional cues were analyzed using the face analysis model.",
+
+                    riskLevel:
+                      finalResult.riskLevel,
+
+                    overallScore:
+                      finalResult.totalScore,
+                  });
+
+                }
+
+                /* ---------------------------------------------
+                   10. VOICE + SELF
+                --------------------------------------------- */
+
+                else if (
+                  analysisType === "voice" &&
+                  voiceScore !== null
+                ) {
+
+                  saveWellnessReport({
+                    assessmentType:
+                      "Voice + Self",
+
+                    questionnaireScore:
+                      finalResult.totalScore,
+
+                    questionnairePercentage:
+                      Math.round(
+                        (finalResult.totalScore / 30) * 100
+                      ),
+
+                    depressionScore:
+                      finalResult.depressionScore,
+
+                    anxietyScore:
+                      finalResult.anxietyScore,
+
+                    summary:
+                      finalResult.summary,
+
+                    pattern:
+                      finalResult.pattern,
+
+                    voiceScore:
+                      Number(voiceScore),
+
+                    voiceEmotion:
+                      voiceEmotion || undefined,
+
+                    voiceCue:
+                      voiceCue || undefined,
+
+                    riskLevel:
+                      finalResult.riskLevel,
+
+                    overallScore:
+                      finalResult.totalScore,
+                  });
+
+                }
+
+                /* ---------------------------------------------
+                   11. SELF ONLY
+                --------------------------------------------- */
+
+                else {
+
+                  saveWellnessReport({
+                    assessmentType:
+                      "Self Assessment",
+
+                    questionnaireScore:
+                      finalResult.totalScore,
+
+                    questionnairePercentage:
+                      Math.round(
+                        (finalResult.totalScore / 30) * 100
+                      ),
+
+                    depressionScore:
+                      finalResult.depressionScore,
+
+                    anxietyScore:
+                      finalResult.anxietyScore,
+
+                    summary:
+                      finalResult.summary,
+
+                    pattern:
+                      finalResult.pattern,
+
+                    riskLevel:
+                      finalResult.riskLevel,
+
+                    overallScore:
+                      finalResult.totalScore,
+                  });
+
+                }
+
+                /* ---------------------------------------------
+                   12. CLEAR TEMPORARY FACE / VOICE STATE
+                --------------------------------------------- */
+
+                localStorage.removeItem(
+                  "analysis_type"
+                );
+
+                localStorage.removeItem(
+                  "face_completed"
+                );
+
+                /* ---------------------------------------------
+                   13. SHOW RESULT
+                --------------------------------------------- */
+
                 setStart(true);
+                setSubmitted(true);
 
               }}
             >
@@ -716,21 +865,21 @@ const SelfAssessment = () => {
 
         </div>
 
-        {/* =====================================
+        {/* =================================================
             COMPLETION COUNT
-        ===================================== */}
+        ================================================= */}
 
         <div className="mt-8 text-center text-sm text-muted-foreground">
 
           {answers.filter(
             (answer) => answer !== -1
           ).length}{" "}
-          of {questions.length} questions completed
+          of{" "}
+          {questions.length} questions completed
 
         </div>
 
       </div>
-
     </div>
   );
 };

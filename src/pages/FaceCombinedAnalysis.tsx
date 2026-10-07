@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
-
+import { saveWellnessReport } from "@/utils/historyStorage";
 
 type FaceResult = {
   emotion: string;
@@ -279,7 +279,16 @@ export default function FaceCombineAnalysis() {
         )
       );
 
+saveWellnessReport({
+  assessmentType: "Face Analysis",
 
+  faceScore: Number(faceData.face_score),
+  faceEmotion: faceData.emotion,
+  faceConfidence: Number(faceData.confidence),
+
+  faceObservation:
+    "Facial emotional cues were analyzed using the face analysis model.",
+});
 
 
 

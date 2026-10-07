@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ClipboardCheck,
@@ -11,7 +11,6 @@ import {
   AudioLines,
   Brain,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-illustration.png";
 
@@ -21,64 +20,61 @@ const features = [
     title: "Self Assessment",
     desc: "Understand your stress levels with clinically-inspired screening tools.",
     link: "/assessment",
+    assessmentType: "self",
   },
-
   {
     icon: Camera,
     title: "Face Analysis",
     desc: "Analyze facial emotional cues and generate a wellbeing support score.",
     link: "/face-analysis",
+    assessmentType: "face",
   },
-
   {
     icon: Camera,
     title: "Face + Self Assessment",
     desc: "Analyze facial emotional cues and combine them with self-assessment for final emotional wellbeing analysis.",
     link: "/face-combined",
+    assessmentType: "face-self",
   },
-
   {
     icon: AudioLines,
     title: "Voice Analysis",
     desc: "Analyze vocal emotional cues and generate a wellbeing support score.",
     link: "/voice-analysis",
+    assessmentType: "voice",
   },
-
   {
     icon: AudioLines,
     title: "Voice + Self Assessment",
     desc: "Analyze vocal emotional cues and combine them with self-assessment for final emotional wellbeing analysis.",
     link: "/voice-combined",
+    assessmentType: "voice-self",
   },
-
   {
     icon: Brain,
     title: "Complete Wellness Analysis",
     desc: "Generate an overall emotional wellbeing report by combining self assessment, facial emotional cues and voice analysis.",
     link: "/complete-analysis",
+    assessmentType: "complete",
   },
-
   {
     icon: MessageCircle,
     title: "AI Chat Support",
     desc: "Immediate, anonymous guidance whenever you need it.",
     link: "/chat",
   },
-
   {
     icon: BookOpen,
     title: "Personal Journal",
     desc: "A quiet space for your thoughts. Write whenever you're ready.",
     link: "/journal",
   },
-
   {
     icon: Wind,
     title: "Stress Relief",
     desc: "Breathing exercises and mindfulness activities to reset your focus.",
     link: "/stress-relief",
   },
-
   {
     icon: CalendarCheck,
     title: "Counselling",
@@ -101,7 +97,6 @@ const item = {
     opacity: 0,
     y: 20,
   },
-
   show: {
     opacity: 1,
     y: 0,
@@ -120,19 +115,22 @@ const item = {
 const Index = () => {
   const navigate = useNavigate();
 
+  const handleAssessmentSelect = (assessmentType: string) => {
+    navigate("/informed-consent", {
+      state: {
+        assessmentType,
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen">
 
-      {/* ========================================= */}
-      {/* HERO SECTION                              */}
-      {/* ========================================= */}
-
+      {/* HERO SECTION */}
       <section className="container mx-auto px-4 py-16 md:py-24">
-
         <div className="grid lg:grid-cols-2 gap-12 items-center">
 
           {/* LEFT SIDE */}
-
           <motion.div
             initial={{
               opacity: 0,
@@ -147,7 +145,6 @@ const Index = () => {
               ease: [0.23, 1, 0.32, 1],
             }}
           >
-
             <p className="text-primary font-semibold mb-4 text-sm tracking-wide uppercase">
               Student Wellness Platform
             </p>
@@ -166,104 +163,81 @@ const Index = () => {
             </p>
 
             {/* ACTION BUTTONS */}
-
             <div className="flex flex-wrap gap-4">
 
-              <Link to="/assessment">
-                <Button
-                  variant="hero"
-                  size="lg"
-                >
-                  Start Self Assessment
-                </Button>
-              </Link>
+              {/* SELF ASSESSMENT */}
+              <Button
+                variant="hero"
+                size="lg"
+                onClick={() => handleAssessmentSelect("self")}
+              >
+                Start Self Assessment
+              </Button>
 
-              <Link to="/face-analysis">
-                <Button
-                  variant="hero-outline"
-                  size="lg"
-                >
-                  <Camera className="w-5 h-5" />
-                  Face Analysis
-                </Button>
-              </Link>
-
-              <Link to="/voice-analysis">
-                <Button
-                  variant="hero-outline"
-                  size="lg"
-                >
-                  <AudioLines className="w-5 h-5" />
-                  Voice Analysis
-                </Button>
-              </Link>
-
-              <Link to="/face-combined">
-                <Button
-                  variant="hero-outline"
-                  size="lg"
-                >
-                  <Camera className="w-5 h-5" />
-                  Face + Self
-                </Button>
-              </Link>
-
-              <Link to="/voice-combined">
-                <Button
-                  variant="hero-outline"
-                  size="lg"
-                >
-                  <AudioLines className="w-5 h-5" />
-                  Voice + Self
-                </Button>
-              </Link>
-
+              {/* MY WELLNESS */}
               <Button
                 variant="hero-outline"
                 size="lg"
-                onClick={() => {
+                onClick={() => navigate("/wellness")}
+              >
+                <Brain className="w-5 h-5" />
+                My Wellness
+              </Button>
 
-                  /*
-                   * Start a completely new
-                   * Complete Wellness Analysis.
-                   */
+              {/* FACE ANALYSIS */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("face")}
+              >
+                <Camera className="w-5 h-5" />
+                Face Analysis
+              </Button>
 
-                  localStorage.removeItem(
-                    "questionnaire_score"
-                  );
+              {/* VOICE ANALYSIS */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("voice")}
+              >
+                <AudioLines className="w-5 h-5" />
+                Voice Analysis
+              </Button>
 
-                  localStorage.removeItem(
-                    "face_score"
-                  );
+              {/* FACE + SELF */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("face-self")}
+              >
+                <Camera className="w-5 h-5" />
+                Face + Self
+              </Button>
 
-                  localStorage.removeItem(
-                    "voice_score"
-                  );
+              {/* VOICE + SELF */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("voice-self")}
+              >
+                <AudioLines className="w-5 h-5" />
+                Voice + Self
+              </Button>
 
-                  localStorage.removeItem(
-                    "assessmentSubmitted"
-                  );
-
-                  localStorage.removeItem(
-                    "assessmentResult"
-                  );
-
-                  navigate(
-                    "/complete-analysis"
-                  );
-                }}
+              {/* COMPLETE ANALYSIS */}
+              <Button
+                variant="hero-outline"
+                size="lg"
+                onClick={() => handleAssessmentSelect("complete")}
               >
                 <Brain className="w-5 h-5" />
                 Complete Analysis
               </Button>
 
             </div>
-
           </motion.div>
 
-
           {/* RIGHT SIDE — HERO IMAGE */}
-
           <motion.div
             initial={{
               opacity: 0,
@@ -280,7 +254,6 @@ const Index = () => {
             }}
             className="relative"
           >
-
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 rounded-[32px] blur-3xl" />
 
             <img
@@ -288,20 +261,13 @@ const Index = () => {
               alt="Students relaxing and meditating in a peaceful setting"
               className="relative rounded-[32px] shadow-float w-full"
             />
-
           </motion.div>
 
         </div>
-
       </section>
 
-
-      {/* ========================================= */}
-      {/* FEATURE CARDS                             */}
-      {/* ========================================= */}
-
+      {/* FEATURE CARDS */}
       <section className="container mx-auto px-4 pb-24">
-
         <motion.div
           variants={container}
           initial="hidden"
@@ -312,9 +278,7 @@ const Index = () => {
           }}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-
           {features.map((feature) => {
-
             const Icon = feature.icon;
 
             return (
@@ -322,16 +286,19 @@ const Index = () => {
                 key={feature.title}
                 variants={item}
               >
-
-                <Link
-                  to={feature.link}
-                  className="group block p-8 bg-card rounded-[24px] border border-transparent hover:border-primary/10 transition-all shadow-soft hover:shadow-float h-full"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (feature.assessmentType) {
+                      handleAssessmentSelect(feature.assessmentType);
+                    } else {
+                      navigate(feature.link);
+                    }
+                  }}
+                  className="group block w-full text-left p-8 bg-card rounded-[24px] border border-transparent hover:border-primary/10 transition-all shadow-soft hover:shadow-float h-full"
                 >
-
                   <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-
                     <Icon className="w-6 h-6 text-primary" />
-
                   </div>
 
                   <h3 className="text-xl font-semibold mb-2">
@@ -346,24 +313,15 @@ const Index = () => {
                     Explore
                     <ArrowRight size={16} />
                   </span>
-
-                </Link>
-
+                </button>
               </motion.div>
             );
           })}
-
         </motion.div>
-
       </section>
 
-
-      {/* ========================================= */}
-      {/* INFORMATION SECTION                       */}
-      {/* ========================================= */}
-
+      {/* INFORMATION SECTION */}
       <section className="container mx-auto px-4 pb-24">
-
         <div className="rounded-[32px] bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 p-8 md:p-12">
 
           <h2 className="text-3xl font-bold mb-4">
@@ -377,13 +335,10 @@ const Index = () => {
             support system for higher education students.
           </p>
 
-
           <div className="mt-6 grid gap-4 md:grid-cols-3">
 
             {/* FACE */}
-
             <div className="rounded-2xl bg-white/70 p-5 border">
-
               <h3 className="font-semibold text-lg mb-2">
                 Face Analysis
               </h3>
@@ -392,14 +347,10 @@ const Index = () => {
                 Detects facial emotional cues and provides emotional
                 wellbeing support indicators.
               </p>
-
             </div>
 
-
             {/* VOICE */}
-
             <div className="rounded-2xl bg-white/70 p-5 border">
-
               <h3 className="font-semibold text-lg mb-2">
                 Voice Analysis
               </h3>
@@ -408,14 +359,10 @@ const Index = () => {
                 Detects vocal emotional cues and provides emotional
                 wellbeing support indicators.
               </p>
-
             </div>
 
-
             {/* COMBINED */}
-
             <div className="rounded-2xl bg-white/70 p-5 border">
-
               <h3 className="font-semibold text-lg mb-2">
                 Combined Wellbeing Analysis
               </h3>
@@ -424,22 +371,14 @@ const Index = () => {
                 Combines AI emotional cues with self-assessment for
                 improved emotional wellbeing analysis.
               </p>
-
             </div>
 
           </div>
-
         </div>
-
       </section>
 
-
-      {/* ========================================= */}
-      {/* FOOTER QUOTE                              */}
-      {/* ========================================= */}
-
+      {/* FOOTER QUOTE */}
       <section className="container mx-auto px-4 pb-24 text-center">
-
         <motion.p
           initial={{
             opacity: 0,
@@ -454,7 +393,6 @@ const Index = () => {
         >
           "Take a deep breath, you're doing great." 🌿
         </motion.p>
-
       </section>
 
     </div>

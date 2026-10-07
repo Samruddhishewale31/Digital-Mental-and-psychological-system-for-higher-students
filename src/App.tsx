@@ -36,6 +36,9 @@ import CounsellorProfile from "./pages/CounsellorProfile";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
 
+import InformedConsent from "./pages/InformedConsent";
+import WellnessCenter from "./pages/WellnessCenter";
+
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAssessment from "./pages/AdminAssessment";
@@ -54,30 +57,60 @@ const AppContent = () => {
       <StudentNavbarGuard />
 
       <Routes>
-        {/* Public Student Routes */}
+        {/* =========================
+            PUBLIC STUDENT ROUTES
+        ========================= */}
         <Route path="/" element={<Welcome />} />
         <Route path="/auth" element={<Auth />} />
 
-        {/* Protected Student Routes */}
+        {/* =========================
+            PROTECTED STUDENT ROUTES
+        ========================= */}
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<Index />} />
+
+          {/* Assessment */}
           <Route path="/assessment" element={<SelfAssessment />} />
-          <Route path="/assessment-history" element={<AssessmentHistory />} />
+          <Route
+            path="/assessment-history"
+            element={<AssessmentHistory />}
+          />
+
+          {/* Wellness */}
+          <Route
+            path="/informed-consent"
+            element={<InformedConsent />}
+          />
+          <Route path="/wellness" element={<WellnessCenter />} />
+
+          {/* AI / Support */}
           <Route path="/chat" element={<AIChat />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/stress-relief" element={<StressRelief />} />
-          <Route path="/creative-corner" element={<CreativeCorner />} />
           <Route
             path="/stress-relief-videos"
             element={<StressReliefVideos />}
           />
+          <Route
+            path="/creative-corner"
+            element={<CreativeCorner />}
+          />
 
-          {/* Analysis Routes */}
+          {/* Analysis */}
           <Route path="/face-analysis" element={<FaceAnalysis />} />
           <Route path="/voice-analysis" element={<VoiceAnalysis />} />
-          <Route path="/face-combined" element={<FaceCombinedAnalysis />} />
-          <Route path="/voice-combined" element={<VoiceCombinedAnalysis />} />
-          <Route path="/complete-analysis" element={<CompleteAnalysis />} />
+          <Route
+            path="/face-combined"
+            element={<FaceCombinedAnalysis />}
+          />
+          <Route
+            path="/voice-combined"
+            element={<VoiceCombinedAnalysis />}
+          />
+          <Route
+            path="/complete-analysis"
+            element={<CompleteAnalysis />}
+          />
 
           {/* Mood / Relaxation */}
           <Route path="/mood-tracker" element={<MoodTracker />} />
@@ -90,13 +123,20 @@ const AppContent = () => {
             element={<CounsellorProfile />}
           />
           <Route path="/book/:id" element={<BookAppointment />} />
-          <Route path="/my-appointments" element={<MyAppointments />} />
+          <Route
+            path="/my-appointments"
+            element={<MyAppointments />}
+          />
         </Route>
 
-        {/* Admin Login */}
+        {/* =========================
+            ADMIN LOGIN
+        ========================= */}
         <Route path="/admin-login" element={<AdminLogin />} />
 
-        {/* Protected Admin Routes */}
+        {/* =========================
+            PROTECTED ADMIN ROUTES
+        ========================= */}
         <Route
           path="/admin"
           element={
@@ -170,7 +210,9 @@ const AppContent = () => {
           }
         />
 
-        {/* 404 */}
+        {/* =========================
+            404
+        ========================= */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

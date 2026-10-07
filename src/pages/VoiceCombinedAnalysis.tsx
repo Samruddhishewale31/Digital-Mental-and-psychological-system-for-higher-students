@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mic, Square, Upload } from "lucide-react";
-
+import { saveWellnessReport } from "@/utils/historyStorage";
 type VoiceResult = {
   voice_emotion: string;
   wellbeing_cue: string;
@@ -104,7 +104,14 @@ const VoiceAnalysis = () => {
       localStorage.setItem("voice_score", String(data.voice_score));
       localStorage.setItem("voice_emotion", data.voice_emotion);
       localStorage.setItem("voice_cue", data.wellbeing_cue);
+saveWellnessReport({
+  assessmentType: "Voice Analysis",
 
+  voiceScore: Number(data.voice_score),
+  voiceEmotion: data.voice_emotion,
+  voiceConfidence: Number(data.confidence),
+  voiceCue: data.wellbeing_cue,
+});
       setTimeout(() => {
         navigate("/assessment");
       }, 2500);
