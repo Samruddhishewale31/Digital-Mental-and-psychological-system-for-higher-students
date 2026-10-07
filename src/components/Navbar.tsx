@@ -20,6 +20,7 @@ const navItems = [
   { label: "AI Support Chat", path: "/chat" },
   { label: "Journal", path: "/journal" },
   { label: "Stress Relief", path: "/stress-relief" },
+  { label: "Creative Corner", path: "/creative-corner" },
   { label: "Counselling", path: "/counselling" },
 ];
   

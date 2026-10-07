@@ -15,6 +15,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 import SelfAssessment from "./pages/SelfAssessment";
+import CreativeCorner from "./pages/CreativeCorner";
 import AssessmentHistory from "./pages/AssessmentHistory";
 import AIChat from "./pages/AIChat";
 import Journal from "./pages/Journal";
@@ -62,6 +63,7 @@ const AppContent = () => {
           <Route path="/chat" element={<AIChat />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/stress-relief" element={<StressRelief />} />
+          <Route path="/creative-corner" element={<CreativeCorner />} />
           <Route
             path="/stress-relief-videos"
             element={<StressReliefVideos />}
