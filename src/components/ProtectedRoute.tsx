@@ -5,7 +5,6 @@ import {
 } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -37,12 +36,7 @@ const ProtectedRoute = () => {
     );
   }
 
-  return (
-    <>
-      <Navbar />
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
