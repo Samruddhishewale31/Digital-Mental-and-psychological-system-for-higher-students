@@ -1,9 +1,42 @@
-const ProtectedRoute = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  return <>{children}</>;
+import {
+  Navigate,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
+
+import { useAuth } from "@/context/AuthContext";
+
+const ProtectedRoute = () => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+
+          <p className="text-muted-foreground">
+            Checking your session...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Navigate
+        to="/auth"
+        replace
+        state={{
+          from: location.pathname,
+        }}
+      />
+    );
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

@@ -44,29 +44,37 @@ const SelfAssessment = () => {
      LOAD PREVIOUS ASSESSMENT STATE
   ===================================================== */
 
+  
   useEffect(() => {
-    /*
-      If user came from Complete Analysis,
-      open the questionnaire directly.
-    */
+    // Always start a fresh questionnaire when arriving
+    // from the informed consent page.
+    if (location.state?.assessmentType === "self") {
+      setAnswers(Array(questions.length).fill(-1));
+      setCurrent(0);
+      setSubmitted(false);
+      setStart(true);
+
+      localStorage.removeItem("assessmentSubmitted");
+      localStorage.removeItem("assessmentResult");
+
+      // Clear navigation state so it doesn't trigger again.
+      navigate("/assessment", { replace: true, state: null });
+      return;
+    }
+
+    // Complete Analysis opens the questionnaire directly.
     if (location.state?.fromComplete) {
       setStart(true);
       setSubmitted(false);
       return;
     }
 
-    /*
-      If a previous assessment was already submitted,
-      show the existing result.
-    */
-    const savedSubmitted =
-      localStorage.getItem("assessmentSubmitted");
+    // Default to the questionnaire rather than displaying
+    // an old result automatically.
+    setStart(true);
+    setSubmitted(false);
+  }, [location.state, navigate]);
 
-    if (savedSubmitted === "true") {
-      setSubmitted(true);
-      setStart(true);
-    }
-  }, [location]);
 
   /* =====================================================
      SELECT ANSWER

@@ -106,8 +106,10 @@ const InformedConsent = () => {
         break;
 
       default:
-        navigate("/assessment");
-        break;
+  navigate("/assessment", {
+    state: { assessmentType: "self" },
+  });
+  break;
     }
   };
 

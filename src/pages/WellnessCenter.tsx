@@ -1,7 +1,8 @@
+
 import MentalWellnessReport from "@/components/MentalWellnessReport";
 import AssessmentHistory from "@/components/AssessmentHistory";
 import ProgressDashboard from "@/components/ProgressDashboard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -10,8 +11,31 @@ import {
   BarChart3,
 } from "lucide-react";
 
+type WellnessSection = "report" | "history" | "progress";
+
 const WellnessCenter = () => {
-  const [activeSection, setActiveSection] = useState("report");
+  const [activeSection, setActiveSection] =
+    useState<WellnessSection>("report");
+
+  // Scroll to the top when this page opens.
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, []);
+
+  // Scroll to the selected section when the user changes tabs.
+  const handleSectionChange = (section: WellnessSection) => {
+    setActiveSection(section);
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,13 +62,13 @@ const WellnessCenter = () => {
 
       {/* MAIN CONTENT */}
       <main className="container mx-auto px-6 py-8">
-
         {/* THREE OPTIONS */}
         <div className="grid gap-4 md:grid-cols-3">
-
-          {/* REPORT */}
+          {/* MENTAL WELLNESS REPORT */}
           <button
-            onClick={() => setActiveSection("report")}
+            type="button"
+            onClick={() => handleSectionChange("report")}
+            aria-pressed={activeSection === "report"}
             className={`rounded-2xl border p-6 text-left transition-all hover:shadow-md ${
               activeSection === "report"
                 ? "border-primary bg-primary/5 shadow-sm"
@@ -62,9 +86,11 @@ const WellnessCenter = () => {
             </p>
           </button>
 
-          {/* HISTORY */}
+          {/* ASSESSMENT HISTORY */}
           <button
-            onClick={() => setActiveSection("history")}
+            type="button"
+            onClick={() => handleSectionChange("history")}
+            aria-pressed={activeSection === "history"}
             className={`rounded-2xl border p-6 text-left transition-all hover:shadow-md ${
               activeSection === "history"
                 ? "border-primary bg-primary/5 shadow-sm"
@@ -82,9 +108,11 @@ const WellnessCenter = () => {
             </p>
           </button>
 
-          {/* PROGRESS */}
+          {/* PROGRESS DASHBOARD */}
           <button
-            onClick={() => setActiveSection("progress")}
+            type="button"
+            onClick={() => handleSectionChange("progress")}
+            aria-pressed={activeSection === "progress"}
             className={`rounded-2xl border p-6 text-left transition-all hover:shadow-md ${
               activeSection === "progress"
                 ? "border-primary bg-primary/5 shadow-sm"
@@ -103,22 +131,23 @@ const WellnessCenter = () => {
           </button>
         </div>
 
-       {/* SELECTED SECTION */}
-<div className="mt-8 rounded-2xl border bg-card p-8 shadow-sm">
+        {/* SELECTED SECTION */}
+        <section
+          className="mt-8 rounded-2xl border bg-card p-4 shadow-sm sm:p-8"
+          aria-live="polite"
+        >
+          {activeSection === "report" && (
+            <MentalWellnessReport />
+          )}
 
-  {activeSection === "report" && (
-    <MentalWellnessReport />
-  )}
+          {activeSection === "history" && (
+            <AssessmentHistory />
+          )}
 
-  {activeSection === "history" && (
-    <AssessmentHistory />
-  )}
-
-  {activeSection === "progress" && (
-  <ProgressDashboard />
-)}
-
-</div>
+          {activeSection === "progress" && (
+            <ProgressDashboard />
+          )}
+        </section>
       </main>
     </div>
   );
