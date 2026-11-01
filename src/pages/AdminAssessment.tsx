@@ -1,3 +1,4 @@
+
 import AdminNavbar from "@/components/AdminNavbar";
 import {
   ArrowLeft,
@@ -58,13 +59,12 @@ const AdminAssessment = () => {
     0
   );
 
-
   return (
     <div className="min-h-screen bg-background">
       <AdminNavbar />
 
-      {/* Main Content */}
       <main className="container mx-auto space-y-8 px-4 py-8">
+
         {/* Title */}
         <div className="flex items-center gap-3">
           <Button
@@ -106,7 +106,7 @@ const AdminAssessment = () => {
           </CardContent>
         </Card>
 
-        {/* Total */}
+        {/* Total Participants */}
         <Card>
           <CardContent className="flex items-center gap-4 p-6">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -125,7 +125,7 @@ const AdminAssessment = () => {
           </CardContent>
         </Card>
 
-        {/* Chart */}
+        {/* Assessment Chart */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -150,30 +150,68 @@ const AdminAssessment = () => {
                     bottom: 60,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    stroke="#E9D5FF"
+                    strokeDasharray="4 4"
+                    vertical={false}
+                  />
 
                   <XAxis
                     dataKey="name"
                     angle={-20}
                     textAnchor="end"
                     interval={0}
+                    tick={{
+                      fill: "#6B21A8",
+                      fontSize: 12,
+                    }}
+                    axisLine={{
+                      stroke: "#D8B4FE",
+                    }}
+                    tickLine={false}
                   />
 
                   <YAxis
                     allowDecimals={false}
+                    tick={{
+                      fill: "#6B21A8",
+                      fontSize: 12,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
                     label={{
                       value: "Number of Students",
                       angle: -90,
                       position: "insideLeft",
+                      fill: "#6B21A8",
                     }}
                   />
 
-                  <Tooltip />
+                  <Tooltip
+                    cursor={{
+                      fill: "#F3E8FF",
+                    }}
+                    contentStyle={{
+                      backgroundColor: "#FAF5FF",
+                      border: "1px solid #D8B4FE",
+                      borderRadius: "10px",
+                      color: "#581C87",
+                    }}
+                    labelStyle={{
+                      color: "#6B21A8",
+                      fontWeight: 600,
+                    }}
+                    itemStyle={{
+                      color: "#7C3AED",
+                      fontWeight: 500,
+                    }}
+                  />
 
                   <Bar
                     dataKey="count"
                     name="Students"
-                    radius={[6, 6, 0, 0]}
+                    fill="#7C3AED"
+                    radius={[8, 8, 0, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -181,7 +219,7 @@ const AdminAssessment = () => {
           </CardContent>
         </Card>
 
-        {/* Option Cards */}
+        {/* Assessment Option Cards */}
         <div>
           <h3 className="mb-4 text-xl font-semibold">
             Assessment Options
@@ -208,7 +246,7 @@ const AdminAssessment = () => {
           </div>
         </div>
 
-        {/* Important Logic */}
+        {/* Assessment Counting Logic */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -230,8 +268,7 @@ const AdminAssessment = () => {
               is counted only under{" "}
               <span className="font-medium text-foreground">
                 Face + Self
-              </span>
-              .
+              </span>.
             </p>
 
             <p>
@@ -240,6 +277,7 @@ const AdminAssessment = () => {
             </p>
           </CardContent>
         </Card>
+
       </main>
     </div>
   );
