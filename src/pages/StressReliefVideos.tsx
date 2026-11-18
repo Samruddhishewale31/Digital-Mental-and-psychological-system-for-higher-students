@@ -88,26 +88,22 @@ export default function StressReliefVideos() {
 
     <div className="container mx-auto py-12 px-5">
       <div className="flex justify-between items-center flex-wrap gap-4 mb-10">
-
   <Button
-  variant="outline"
-  onClick={() =>
-    navigate("/assessment", {
-      state: {
-        fromAssessment: true,
-      },
-    })
-  }
->
-  <ArrowLeft className="mr-2 h-4 w-4" />
-  Back to Assessment
-</Button>
-
-  <Button onClick={() => navigate("/")}>
-    <Home className="mr-2 h-4 w-4" />
-    Back Home
+    variant="outline"
+    onClick={() =>
+      navigate("/assessment", {
+        state: { fromAssessment: true },
+      })
+    }
+  >
+    <ArrowLeft className="mr-2 h-4 w-4" />
+    Back to Results
   </Button>
 
+  <Button onClick={() => navigate("/home")}>
+    <Home className="mr-2 h-4 w-4" />
+    Back to Home
+  </Button>
 </div>
 
       <div className="text-center mb-10">

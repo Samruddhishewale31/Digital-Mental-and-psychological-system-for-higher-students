@@ -2,10 +2,11 @@
 import MentalWellnessReport from "@/components/MentalWellnessReport";
 import AssessmentHistory from "@/components/AssessmentHistory";
 import ProgressDashboard from "@/components/ProgressDashboard";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
+  Home,
   Brain,
   ClipboardList,
   BarChart3,
@@ -17,16 +18,8 @@ const WellnessCenter = () => {
   const [activeSection, setActiveSection] =
     useState<WellnessSection>("report");
 
-  // Scroll to the top when this page opens.
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
-  }, []);
+  const navigate = useNavigate();
 
-  // Scroll to the selected section when the user changes tabs.
   const handleSectionChange = (section: WellnessSection) => {
     setActiveSection(section);
 
@@ -42,13 +35,31 @@ const WellnessCenter = () => {
       {/* HEADER */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-6 py-6">
-          <Link
-            to="/"
-            className="mb-5 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
+
+          {/* NAVIGATION BUTTONS */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/assessment", {
+                  state: { fromAssessment: true },
+                })
+              }
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Results
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/home")}
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <Home className="h-4 w-4" />
+              Back to Home
+            </button>
+          </div>
 
           <h1 className="text-3xl font-bold tracking-tight">
             My Wellness
@@ -62,8 +73,10 @@ const WellnessCenter = () => {
 
       {/* MAIN CONTENT */}
       <main className="container mx-auto px-6 py-8">
+
         {/* THREE OPTIONS */}
         <div className="grid gap-4 md:grid-cols-3">
+
           {/* MENTAL WELLNESS REPORT */}
           <button
             type="button"

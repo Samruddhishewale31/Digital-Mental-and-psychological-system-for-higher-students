@@ -44,36 +44,54 @@ const SelfAssessment = () => {
      LOAD PREVIOUS ASSESSMENT STATE
   ===================================================== */
 
-  
   useEffect(() => {
-    // Always start a fresh questionnaire when arriving
-    // from the informed consent page.
-    if (location.state?.assessmentType === "self") {
-      setAnswers(Array(questions.length).fill(-1));
-      setCurrent(0);
-      setSubmitted(false);
-      setStart(true);
 
-      localStorage.removeItem("assessmentSubmitted");
-      localStorage.removeItem("assessmentResult");
+  // 1. Fresh assessment after informed consent
+  if (location.state?.assessmentType === "self") {
 
-      // Clear navigation state so it doesn't trigger again.
-      navigate("/assessment", { replace: true, state: null });
-      return;
-    }
+    setAnswers(Array(questions.length).fill(-1));
+    setCurrent(0);
+    setSubmitted(false);
+    setStart(true);
 
-    // Complete Analysis opens the questionnaire directly.
-    if (location.state?.fromComplete) {
-      setStart(true);
-      setSubmitted(false);
-      return;
-    }
+    localStorage.removeItem("assessmentSubmitted");
+    localStorage.removeItem("assessmentResult");
 
-    // Default to the questionnaire rather than displaying
-    // an old result automatically.
+    navigate("/assessment", {
+      replace: true,
+      state: null,
+    });
+
+    return;
+  }
+
+  // 2. Complete analysis flow
+  if (location.state?.fromComplete) {
+
     setStart(true);
     setSubmitted(false);
-  }, [location.state, navigate]);
+
+    return;
+  }
+
+  // 3. Returning from a recommended wellness feature
+  if (location.state?.fromAssessment) {
+
+    const hasPreviousResult =
+      localStorage.getItem("assessmentSubmitted") === "true" &&
+      localStorage.getItem("assessmentResult") !== null;
+
+    setStart(true);
+    setSubmitted(hasPreviousResult);
+
+    return;
+  }
+
+  // 4. Normal assessment entry
+  setStart(true);
+  setSubmitted(false);
+
+}, [location.state, navigate]);
 
 
   /* =====================================================
@@ -445,12 +463,12 @@ const SelfAssessment = () => {
             </Button>
 
             <Button
-              variant="outline"
-              onClick={() => navigate("/")}
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Back To Home
-            </Button>
+  variant="outline"
+  onClick={() => navigate("/home")}
+>
+  <Home className="mr-2 h-4 w-4" />
+  Back to Home
+</Button>
 
           </div>
 

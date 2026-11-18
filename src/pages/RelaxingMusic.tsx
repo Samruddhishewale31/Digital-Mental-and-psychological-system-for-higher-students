@@ -82,29 +82,24 @@ export default function RelaxingMusic() {
 
   <div className="mb-8">
 
-    <div className="flex justify-between items-center flex-wrap gap-4 mb-8">
-
+    <div className="flex justify-between items-center flex-wrap gap-4 mb-10">
   <Button
     variant="outline"
     onClick={() =>
       navigate("/assessment", {
-        state: {
-          fromAssessment: true,
-        },
+        state: { fromAssessment: true },
       })
     }
   >
     <ArrowLeft className="mr-2 h-4 w-4" />
-    Back to Assessment
+    Back to Results
   </Button>
 
-  <Button onClick={() => navigate("/")}>
+  <Button onClick={() => navigate("/home")}>
     <Home className="mr-2 h-4 w-4" />
-    Back Home
+    Back to Home
   </Button>
-
 </div>
-
   </div>
 
       <h1 className="text-4xl font-bold text-center mb-3">
@@ -172,5 +167,4 @@ export default function RelaxingMusic() {
     </div>
 
   );
-
 }

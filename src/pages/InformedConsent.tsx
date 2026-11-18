@@ -114,7 +114,7 @@ const InformedConsent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9F4] flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-[#FFF9F4] flex items-start justify-center px-4 py-10">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8 md:p-10">
 
         <div className="text-center mb-8">

@@ -79,30 +79,24 @@ const tools = [
 
       {/* Top Buttons */}
 
-      <div className="flex justify-between items-center flex-wrap gap-4 mb-12">
+      <div className="flex justify-between items-center flex-wrap gap-4 mb-10">
+  <Button
+    variant="outline"
+    onClick={() =>
+      navigate("/assessment", {
+        state: { fromAssessment: true },
+      })
+    }
+  >
+    <ArrowLeft className="mr-2 h-4 w-4" />
+    Back to Results
+  </Button>
 
-        <Button
-          variant="outline"
-          onClick={() =>
-            navigate("/assessment", {
-              state: {
-                fromAssessment: true,
-              },
-            })
-          }
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Assessment
-        </Button>
-
-        <Button
-          onClick={() => navigate("/")}
-        >
-          <Home className="mr-2 h-4 w-4" />
-          Back Home
-        </Button>
-
-      </div>
+  <Button onClick={() => navigate("/home")}>
+    <Home className="mr-2 h-4 w-4" />
+    Back to Home
+  </Button>
+</div>
 
       {/* Heading */}
 

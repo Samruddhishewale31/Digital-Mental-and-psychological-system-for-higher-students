@@ -1,3 +1,4 @@
+
 import {
   Wind,
   BookOpen,
@@ -8,54 +9,45 @@ import {
 } from "lucide-react";
 
 export const recommendations = {
-
   "Minimal Risk": [
-
-  {
-    title: "Calming Music",
-    description:
-      "Listen to calming music or nature sounds to maintain emotional wellbeing.",
-    icon: <Music size={40} className="text-blue-500" />,
-    link: "/relaxing-music",
-  },
-
-  {
-    title: "Mood Tracker",
-    description:
-      "Track your mood regularly to stay aware of emotional changes.",
-    icon: <Smile size={40} className="text-green-500" />,
-    link: "/mood-tracker",
-  },
-
-  
- {
-  title: "Stress Relief Exercises",
-  description:
-    "Practice guided breathing, mindfulness and focus exercises.",
-  icon: <Wind size={40} className="text-cyan-500" />,
-  link: "/stress-relief",
-},
-
-  {
-    title: "Journal",
-    description:
-      "Write about your thoughts and emotions to maintain emotional wellbeing.",
-    icon: <BookOpen size={40} className="text-orange-500" />,
-    link: "/journal",
-  },
-
-],
+    {
+      title: "Calming Music",
+      description:
+        "Listen to calming music or nature sounds to maintain emotional wellbeing.",
+      icon: <Music size={40} className="text-blue-500" />,
+      link: "/relaxing-music",
+    },
+    {
+      title: "Mood Tracker",
+      description:
+        "Track your mood regularly to stay aware of emotional changes.",
+      icon: <Smile size={40} className="text-green-500" />,
+      link: "/mood-tracker",
+    },
+    {
+      title: "Stress Relief Exercises",
+      description:
+        "Practice guided breathing, mindfulness and focus exercises.",
+      icon: <Wind size={40} className="text-cyan-500" />,
+      link: "/stress-relief",
+    },
+    {
+      title: "Journal",
+      description:
+        "Write about your thoughts and emotions to maintain emotional wellbeing.",
+      icon: <BookOpen size={40} className="text-orange-500" />,
+      link: "/journal",
+    },
+  ],
 
   "Mild Risk": [
-
-   {
-  title: "Stress Relief Exercises",
-  description:
-    "Practice guided breathing, mindfulness and focus exercises.",
-  icon: <Wind size={40} className="text-cyan-500" />,
-  link: "/stress-relief",
-},
-
+    {
+      title: "Stress Relief Exercises",
+      description:
+        "Practice guided breathing, mindfulness and focus exercises.",
+      icon: <Wind size={40} className="text-cyan-500" />,
+      link: "/stress-relief",
+    },
     {
       title: "Journal",
       description:
@@ -63,7 +55,6 @@ export const recommendations = {
       icon: <BookOpen size={40} className="text-orange-500" />,
       link: "/journal",
     },
-
     {
       title: "Mood Tracker",
       description:
@@ -71,7 +62,6 @@ export const recommendations = {
       icon: <Smile size={40} className="text-green-500" />,
       link: "/mood-tracker",
     },
-
     {
       title: "Calming Music",
       description:
@@ -79,11 +69,9 @@ export const recommendations = {
       icon: <Music size={40} className="text-blue-500" />,
       link: "/relaxing-music",
     },
-
   ],
 
   "Moderate Risk": [
-
     {
       title: "Guided Stress Relief Videos",
       description:
@@ -91,15 +79,13 @@ export const recommendations = {
       icon: <Wind size={40} className="text-cyan-500" />,
       link: "/stress-relief-videos",
     },
-
     {
       title: "AI Support Chat",
       description:
         "Talk to our AI assistant for emotional support and coping suggestions.",
       icon: <MessageCircle size={40} className="text-purple-500" />,
-      link: "/chatbot",
+      link: "/chat",
     },
-
     {
       title: "Journal",
       description:
@@ -107,7 +93,6 @@ export const recommendations = {
       icon: <BookOpen size={40} className="text-orange-500" />,
       link: "/journal",
     },
-
     {
       title: "Mood Tracker",
       description:
@@ -115,11 +100,9 @@ export const recommendations = {
       icon: <Smile size={40} className="text-green-500" />,
       link: "/mood-tracker",
     },
-
   ],
 
   "High Risk": [
-
     {
       title: "Professional Counselling",
       description:
@@ -127,15 +110,13 @@ export const recommendations = {
       icon: <ShieldCheck size={40} className="text-red-600" />,
       link: "/counselling",
     },
-
     {
       title: "AI Support Chat",
       description:
         "Talk with our AI assistant whenever you need immediate emotional support.",
       icon: <MessageCircle size={40} className="text-purple-500" />,
-      link: "/chatbot",
+      link: "/chat",
     },
-
     {
       title: "Guided Stress Relief Videos",
       description:
@@ -143,7 +124,6 @@ export const recommendations = {
       icon: <Wind size={40} className="text-cyan-500" />,
       link: "/stress-relief-videos",
     },
-
     {
       title: "Journal",
       description:
@@ -151,7 +131,6 @@ export const recommendations = {
       icon: <BookOpen size={40} className="text-orange-500" />,
       link: "/journal",
     },
-
     {
       title: "Calming Music",
       description:
@@ -159,7 +138,5 @@ export const recommendations = {
       icon: <Music size={40} className="text-blue-500" />,
       link: "/relaxing-music",
     },
-
   ],
-
 };
