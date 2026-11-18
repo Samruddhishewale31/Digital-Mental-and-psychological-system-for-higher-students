@@ -1,3 +1,4 @@
+
 import AdminNavbar from "@/components/AdminNavbar";
 import {
   ArrowLeft,
@@ -28,6 +29,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+// Purple shades based on severity level
+const levelColors: Record<string, string> = {
+  Low: "#E9D5FF",
+  Moderate: "#C084FC",
+  High: "#9333EA",
+  Severe: "#581C87",
+
+  "Low Risk": "#E9D5FF",
+  "Moderate Risk": "#C084FC",
+  "High Risk": "#9333EA",
+  "Severe Risk": "#581C87",
+};
+
 const anxietyData = [
   { name: "Low", value: 42 },
   { name: "Moderate", value: 28 },
@@ -52,7 +66,7 @@ const riskData = [
 const AdminMentalHealth = () => {
   const navigate = useNavigate();
 
-
+  // Reusable Pie Chart
   const renderPieChart = (
     data: { name: string; value: number }[]
   ) => (
@@ -69,13 +83,33 @@ const AdminMentalHealth = () => {
             `${name} ${(percent * 100).toFixed(0)}%`
           }
         >
-          {data.map((_, index) => (
-            <Cell key={`cell-${index}`} />
+          {data.map((item) => (
+            <Cell
+              key={item.name}
+              fill={levelColors[item.name]}
+              stroke="#FFFFFF"
+              strokeWidth={2}
+            />
           ))}
         </Pie>
 
-        <Tooltip />
-        <Legend />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: "#FAF5FF",
+            border: "1px solid #D8B4FE",
+            borderRadius: "10px",
+            color: "#581C87",
+          }}
+          itemStyle={{
+            color: "#7C3AED",
+          }}
+        />
+
+        <Legend
+          wrapperStyle={{
+            color: "#6B21A8",
+          }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );
@@ -84,8 +118,8 @@ const AdminMentalHealth = () => {
     <div className="min-h-screen bg-background">
       <AdminNavbar />
 
-      {/* Main Content */}
       <main className="container mx-auto space-y-8 px-4 py-8">
+
         {/* Title */}
         <div className="flex items-center gap-3">
           <Button
@@ -128,6 +162,7 @@ const AdminMentalHealth = () => {
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3">
+
           <Card>
             <CardContent className="flex items-center gap-4 p-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -193,9 +228,10 @@ const AdminMentalHealth = () => {
               </div>
             </CardContent>
           </Card>
+
         </div>
 
-        {/* Anxiety */}
+        {/* Anxiety Chart */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -212,7 +248,7 @@ const AdminMentalHealth = () => {
           </CardContent>
         </Card>
 
-        {/* Depression */}
+        {/* Depression Chart */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -229,7 +265,7 @@ const AdminMentalHealth = () => {
           </CardContent>
         </Card>
 
-        {/* Risk */}
+        {/* Risk Chart */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -253,33 +289,95 @@ const AdminMentalHealth = () => {
                     bottom: 20,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    stroke="#E9D5FF"
+                    strokeDasharray="4 4"
+                    vertical={false}
+                  />
 
-                  <XAxis dataKey="name" />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "#6B21A8" }}
+                    axisLine={{ stroke: "#D8B4FE" }}
+                    tickLine={false}
+                  />
 
                   <YAxis
                     allowDecimals={false}
+                    tick={{ fill: "#6B21A8" }}
+                    axisLine={false}
+                    tickLine={false}
                     label={{
                       value: "Participants",
                       angle: -90,
                       position: "insideLeft",
+                      fill: "#6B21A8",
                     }}
                   />
 
-                  <Tooltip />
+                  <Tooltip
+                    cursor={{ fill: "#F3E8FF" }}
+                    contentStyle={{
+                      backgroundColor: "#FAF5FF",
+                      border: "1px solid #D8B4FE",
+                      borderRadius: "10px",
+                    }}
+                    itemStyle={{
+                      color: "#7C3AED",
+                    }}
+                  />
+
+                  <Legend />
 
                   <Bar
                     dataKey="value"
                     name="Participants"
-                    radius={[6, 6, 0, 0]}
-                  />
+                    radius={[8, 8, 0, 0]}
+                  >
+                    {riskData.map((item) => (
+                      <Cell
+                        key={item.name}
+                        fill={levelColors[item.name]}
+                        stroke="#FFFFFF"
+                        strokeWidth={1}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Note */}
+        {/* Colour Legend */}
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              Severity Colour Guide
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="flex flex-wrap gap-6">
+            {[
+              { name: "Low", color: "#E9D5FF" },
+              { name: "Moderate", color: "#C084FC" },
+              { name: "High", color: "#9333EA" },
+              { name: "Severe", color: "#581C87" },
+            ].map((item) => (
+              <div key={item.name} className="flex items-center gap-2">
+                <div
+                  className="h-4 w-4 rounded"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Interpretation */}
         <Card>
           <CardHeader>
             <CardTitle>
@@ -296,6 +394,7 @@ const AdminMentalHealth = () => {
             </p>
           </CardContent>
         </Card>
+
       </main>
     </div>
   );

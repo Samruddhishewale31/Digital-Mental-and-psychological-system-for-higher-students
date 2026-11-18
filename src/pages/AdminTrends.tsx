@@ -1,3 +1,4 @@
+
 import AdminNavbar from "@/components/AdminNavbar";
 import {
   ArrowLeft,
@@ -24,6 +25,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+// MindEase purple theme
+const PURPLE = "#7C3AED";
+const LIGHT_PURPLE = "#C084FC";
+const DARK_PURPLE = "#9333EA";
+const DEEP_PURPLE = "#581C87";
+const GRID_PURPLE = "#E9D5FF";
 
 const monthlyData = [
   {
@@ -73,13 +81,13 @@ const monthlyData = [
 const AdminTrends = () => {
   const navigate = useNavigate();
 
-
   return (
     <div className="min-h-screen bg-background">
       <AdminNavbar />
 
       {/* Main Content */}
       <main className="container mx-auto space-y-8 px-4 py-8">
+
         {/* Title */}
         <div className="flex items-center gap-3">
           <Button
@@ -145,27 +153,63 @@ const AdminTrends = () => {
                     bottom: 20,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    stroke={GRID_PURPLE}
+                    strokeDasharray="3 3"
+                  />
 
-                  <XAxis dataKey="month" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: "#6B21A8" }}
+                    axisLine={{ stroke: "#D8B4FE" }}
+                    tickLine={false}
+                  />
 
                   <YAxis
                     allowDecimals={false}
+                    tick={{ fill: "#6B21A8" }}
+                    axisLine={false}
+                    tickLine={false}
                     label={{
                       value: "Assessments",
                       angle: -90,
                       position: "insideLeft",
+                      fill: "#6B21A8",
                     }}
                   />
 
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#FAF5FF",
+                      border: "1px solid #D8B4FE",
+                      borderRadius: "10px",
+                    }}
+                    itemStyle={{
+                      color: PURPLE,
+                    }}
+                    labelStyle={{
+                      color: DEEP_PURPLE,
+                    }}
+                  />
 
                   <Line
                     type="monotone"
                     dataKey="assessments"
                     name="Assessments"
+                    stroke={PURPLE}
                     strokeWidth={3}
-                    dot={{ r: 5 }}
+                    dot={{
+                      r: 5,
+                      fill: PURPLE,
+                      stroke: "#FFFFFF",
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{
+                      r: 7,
+                      fill: PURPLE,
+                      stroke: "#FFFFFF",
+                      strokeWidth: 2,
+                    }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -197,45 +241,90 @@ const AdminTrends = () => {
                     bottom: 20,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    stroke={GRID_PURPLE}
+                    strokeDasharray="3 3"
+                  />
 
-                  <XAxis dataKey="month" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: "#6B21A8" }}
+                    axisLine={{ stroke: "#D8B4FE" }}
+                    tickLine={false}
+                  />
 
                   <YAxis
                     domain={[0, 100]}
+                    tick={{ fill: "#6B21A8" }}
+                    axisLine={false}
+                    tickLine={false}
                     label={{
                       value: "Percentage",
                       angle: -90,
                       position: "insideLeft",
+                      fill: "#6B21A8",
                     }}
                   />
 
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#FAF5FF",
+                      border: "1px solid #D8B4FE",
+                      borderRadius: "10px",
+                    }}
+                    labelStyle={{
+                      color: DEEP_PURPLE,
+                    }}
+                  />
 
                   <Legend />
 
+                  {/* Anxiety - Light Purple */}
                   <Line
                     type="monotone"
                     dataKey="anxiety"
                     name="Anxiety"
+                    stroke={LIGHT_PURPLE}
                     strokeWidth={3}
-                    dot={{ r: 4 }}
+                    dot={{
+                      r: 4,
+                      fill: LIGHT_PURPLE,
+                      stroke: "#FFFFFF",
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{ r: 6 }}
                   />
 
+                  {/* Depression - Medium Purple */}
                   <Line
                     type="monotone"
                     dataKey="depression"
                     name="Depression"
+                    stroke={DARK_PURPLE}
                     strokeWidth={3}
-                    dot={{ r: 4 }}
+                    dot={{
+                      r: 4,
+                      fill: DARK_PURPLE,
+                      stroke: "#FFFFFF",
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{ r: 6 }}
                   />
 
+                  {/* Higher Risk - Deep Purple */}
                   <Line
                     type="monotone"
                     dataKey="risk"
                     name="Higher Risk"
+                    stroke={DEEP_PURPLE}
                     strokeWidth={3}
-                    dot={{ r: 4 }}
+                    dot={{
+                      r: 4,
+                      fill: DEEP_PURPLE,
+                      stroke: "#FFFFFF",
+                      strokeWidth: 2,
+                    }}
+                    activeDot={{ r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -245,6 +334,7 @@ const AdminTrends = () => {
 
         {/* Pattern Summary */}
         <div className="grid gap-4 md:grid-cols-3">
+
           <Card>
             <CardContent className="p-6">
               <TrendingUp className="mb-3 h-6 w-6 text-primary" />
@@ -298,6 +388,7 @@ const AdminTrends = () => {
               </p>
             </CardContent>
           </Card>
+
         </div>
 
         {/* Note */}
@@ -319,6 +410,7 @@ const AdminTrends = () => {
             </p>
           </CardContent>
         </Card>
+
       </main>
     </div>
   );

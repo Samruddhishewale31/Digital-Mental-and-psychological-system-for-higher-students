@@ -1,3 +1,4 @@
+
 import AdminNavbar from "@/components/AdminNavbar";
 import {
   ArrowLeft,
@@ -26,32 +27,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const participationData = [
-  {
-    name: "Self Assessment",
-    participants: 30,
-  },
-  {
-    name: "Face",
-    participants: 15,
-  },
-  {
-    name: "Voice",
-    participants: 12,
-  },
-  {
-    name: "Voice + Self",
-    participants: 10,
-  },
-  {
-    name: "Face + Self",
-    participants: 18,
-  },
-  {
-    name: "All Three",
-    participants: 15,
-  },
-];
+// MindEase chart theme
+const PURPLE = "#7C3AED";
+const GRID_PURPLE = "#E9D5FF";
+const AXIS_PURPLE = "#6B21A8";
 
 const monthlyParticipation = [
   {
@@ -80,9 +59,35 @@ const monthlyParticipation = [
   },
 ];
 
+const participationData = [
+  {
+    name: "Self Assessment",
+    participants: 30,
+  },
+  {
+    name: "Face",
+    participants: 15,
+  },
+  {
+    name: "Voice",
+    participants: 12,
+  },
+  {
+    name: "Voice + Self",
+    participants: 10,
+  },
+  {
+    name: "Face + Self",
+    participants: 18,
+  },
+  {
+    name: "All Three",
+    participants: 15,
+  },
+];
+
 const AdminParticipation = () => {
   const navigate = useNavigate();
-
 
   const totalParticipants = participationData.reduce(
     (total, item) => total + item.participants,
@@ -95,6 +100,7 @@ const AdminParticipation = () => {
 
       {/* Main Content */}
       <main className="container mx-auto space-y-8 px-4 py-8">
+
         {/* Title */}
         <div className="flex items-center gap-3">
           <Button
@@ -138,6 +144,7 @@ const AdminParticipation = () => {
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-3">
+
           <Card>
             <CardContent className="flex items-center gap-4 p-6">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -191,6 +198,7 @@ const AdminParticipation = () => {
               </div>
             </CardContent>
           </Card>
+
         </div>
 
         {/* Participation by Assessment */}
@@ -217,29 +225,54 @@ const AdminParticipation = () => {
                     bottom: 60,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    stroke={GRID_PURPLE}
+                    strokeDasharray="3 3"
+                    vertical={false}
+                  />
 
                   <XAxis
                     dataKey="name"
                     angle={-20}
                     textAnchor="end"
                     interval={0}
+                    tick={{ fill: AXIS_PURPLE, fontSize: 12 }}
+                    axisLine={{ stroke: "#D8B4FE" }}
+                    tickLine={false}
                   />
 
                   <YAxis
                     allowDecimals={false}
+                    tick={{ fill: AXIS_PURPLE }}
+                    axisLine={false}
+                    tickLine={false}
                     label={{
                       value: "Students",
                       angle: -90,
                       position: "insideLeft",
+                      fill: AXIS_PURPLE,
                     }}
                   />
 
-                  <Tooltip />
+                  <Tooltip
+                    cursor={{ fill: "#F3E8FF" }}
+                    contentStyle={{
+                      backgroundColor: "#FAF5FF",
+                      border: "1px solid #D8B4FE",
+                      borderRadius: "10px",
+                    }}
+                    labelStyle={{
+                      color: "#581C87",
+                    }}
+                    itemStyle={{
+                      color: PURPLE,
+                    }}
+                  />
 
                   <Bar
                     dataKey="participants"
                     name="Participants"
+                    fill={PURPLE}
                     radius={[6, 6, 0, 0]}
                   />
                 </BarChart>
@@ -272,24 +305,51 @@ const AdminParticipation = () => {
                     bottom: 20,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid
+                    stroke={GRID_PURPLE}
+                    strokeDasharray="3 3"
+                    vertical={false}
+                  />
 
-                  <XAxis dataKey="month" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: AXIS_PURPLE }}
+                    axisLine={{ stroke: "#D8B4FE" }}
+                    tickLine={false}
+                  />
 
                   <YAxis
                     allowDecimals={false}
+                    tick={{ fill: AXIS_PURPLE }}
+                    axisLine={false}
+                    tickLine={false}
                     label={{
                       value: "Students",
                       angle: -90,
                       position: "insideLeft",
+                      fill: AXIS_PURPLE,
                     }}
                   />
 
-                  <Tooltip />
+                  <Tooltip
+                    cursor={{ fill: "#F3E8FF" }}
+                    contentStyle={{
+                      backgroundColor: "#FAF5FF",
+                      border: "1px solid #D8B4FE",
+                      borderRadius: "10px",
+                    }}
+                    labelStyle={{
+                      color: "#581C87",
+                    }}
+                    itemStyle={{
+                      color: PURPLE,
+                    }}
+                  />
 
                   <Bar
                     dataKey="participants"
                     name="Participants"
+                    fill={PURPLE}
                     radius={[6, 6, 0, 0]}
                   />
                 </BarChart>
@@ -343,6 +403,7 @@ const AdminParticipation = () => {
             </p>
           </CardContent>
         </Card>
+
       </main>
     </div>
   );
