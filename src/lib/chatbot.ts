@@ -6,7 +6,7 @@ export interface ChatHistoryItem {
 }
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL_NAME = "llama-3.3-70b-versatile";
+const MODEL_NAME = "openai/gpt-oss-120b";
 
 const SYSTEM_PROMPT = `You are Mindful Scholar, a warm emotional support companion for students.
 

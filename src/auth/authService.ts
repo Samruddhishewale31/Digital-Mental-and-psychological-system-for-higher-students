@@ -1,288 +1,255 @@
-const USERS_KEY = "mindease_users";
-const SESSION_KEY = "mindease_session";
 
-interface StoredUser {
-  id: string;
-  passwordHash: string;
-  salt: string;
-  createdAt: string;
-}
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+const TOKEN_KEY = "mindease_token";
+const LAST_ID_KEY = "mindease_last_id";
 
 export interface AuthUser {
   id: string;
   createdAt: string;
 }
 
-/* ------------------------------------------------ */
-/* Utility: Convert ArrayBuffer to Base64           */
-/* ------------------------------------------------ */
+interface AuthResponse {
+  success: boolean;
+  message: string;
+  user?: AuthUser;
+  token?: string;
+}
 
-const bufferToBase64 = (buffer: ArrayBuffer): string => {
-  const bytes = new Uint8Array(buffer);
+interface MessageResponse {
+  success: boolean;
+  message: string;
+}
 
-  let binary = "";
-
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-
-  return btoa(binary);
+const saveToken = (token: string) => {
+  sessionStorage.setItem(TOKEN_KEY, token);
 };
 
-/* ------------------------------------------------ */
-/* Utility: Convert Base64 to ArrayBuffer           */
-/* ------------------------------------------------ */
+export const getToken = () =>
+  sessionStorage.getItem(TOKEN_KEY);
 
-const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
-  const binary = atob(base64);
-
-  const bytes = new Uint8Array(binary.length);
-
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-
-  return bytes.buffer;
+const clearToken = () => {
+  sessionStorage.removeItem(TOKEN_KEY);
 };
 
-/* ------------------------------------------------ */
-/* Generate password hash                           */
-/* ------------------------------------------------ */
+export const saveLastMindEaseId = (id: string) => {
+  localStorage.setItem(LAST_ID_KEY, id);
+};
 
-const hashPassword = async (
-  password: string,
-  salt: ArrayBuffer
-): Promise<string> => {
-  const encoder = new TextEncoder();
+export const getLastMindEaseId = () => {
+  return localStorage.getItem(LAST_ID_KEY) || "";
+};
 
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"]
-  );
-
-  const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      salt: salt,
-      iterations: 150000,
-      hash: "SHA-256",
+const apiRequest = async <T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> => {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
     },
-    keyMaterial,
-    256
-  );
+  });
 
-  return bufferToBase64(derivedBits);
-};
+  const data = await response.json();
 
-/* ------------------------------------------------ */
-/* Get all locally stored users                     */
-/* ------------------------------------------------ */
-
-const getUsers = (): StoredUser[] => {
-  const data = localStorage.getItem(USERS_KEY);
-
-  if (!data) {
-    return [];
+  if (!response.ok) {
+    throw new Error(data.message || "Something went wrong.");
   }
 
-  try {
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
+  return data as T;
 };
 
-/* ------------------------------------------------ */
-/* Save users                                       */
-/* ------------------------------------------------ */
+// ------------------------------------------
+// REGISTRATION EMAIL OTP
+// ------------------------------------------
 
-const saveUsers = (users: StoredUser[]) => {
-  localStorage.setItem(
-    USERS_KEY,
-    JSON.stringify(users)
-  );
+export const sendRegistrationOtp = async (email: string) => {
+  return apiRequest<MessageResponse>("/api/auth/send-otp", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
 };
 
-/* ------------------------------------------------ */
-/* Generate anonymous MindEase ID                  */
-/* ------------------------------------------------ */
-
-const generateMindEaseId = (): string => {
-  const uuid = crypto.randomUUID();
-
-  const shortId = uuid
-    .replace(/-/g, "")
-    .substring(0, 8)
-    .toUpperCase();
-
-  return `ME-${shortId}`;
+export const verifyRegistrationOtp = async (
+  email: string,
+  otp: string
+) => {
+  return apiRequest<MessageResponse>("/api/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
+  });
 };
 
-/* ------------------------------------------------ */
-/* SIGN UP                                          */
-/* ------------------------------------------------ */
+// ------------------------------------------
+// REGISTER
+// ------------------------------------------
 
 export const registerUser = async (
-  password: string
+  email: string,
+  password: string,
+  registrationCode?: string
 ): Promise<AuthUser> => {
-
-  if (!password || password.length < 8) {
-    throw new Error(
-      "Password must contain at least 8 characters."
-    );
-  }
-
-  const users = getUsers();
-
-  let id = generateMindEaseId();
-
-  // Prevent an extremely unlikely ID collision
-  while (users.some((user) => user.id === id)) {
-    id = generateMindEaseId();
-  }
-
-  /*
-   * Create a 16-byte random salt.
-   *
-   * We explicitly use an ArrayBuffer so that
-   * TypeScript's Web Crypto types are satisfied.
-   */
-  const saltBuffer = new ArrayBuffer(16);
-
-  const salt = new Uint8Array(saltBuffer);
-
-  crypto.getRandomValues(salt);
-
-  const passwordHash = await hashPassword(
-    password,
-    saltBuffer
+  const data = await apiRequest<AuthResponse>(
+    "/api/auth/register",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+        registrationCode: registrationCode?.trim() || undefined,
+      }),
+    }
   );
 
-  const newUser: StoredUser = {
-    id,
-    passwordHash,
-    salt: bufferToBase64(saltBuffer),
-    createdAt: new Date().toISOString(),
-  };
+  if (!data.user || !data.token) {
+    throw new Error("Registration response was incomplete.");
+  }
 
-  users.push(newUser);
+  saveToken(data.token);
+  saveLastMindEaseId(data.user.id);
 
-  saveUsers(users);
-
-  // Automatically log the user in
-  sessionStorage.setItem(
-    SESSION_KEY,
-    id
-  );
-
-  return {
-    id,
-    createdAt: newUser.createdAt,
-  };
+  return data.user;
 };
 
-/* ------------------------------------------------ */
-/* LOGIN                                            */
-/* ------------------------------------------------ */
+// ------------------------------------------
+// LOGIN
+// ------------------------------------------
 
 export const loginUser = async (
   id: string,
   password: string
 ): Promise<AuthUser> => {
-
-  const cleanId = id
-    .trim()
-    .toUpperCase();
-
-  const users = getUsers();
-
-  const user = users.find(
-    (storedUser) =>
-      storedUser.id === cleanId
+  const data = await apiRequest<AuthResponse>(
+    "/api/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify({ id, password }),
+    }
   );
 
-  if (!user) {
-    throw new Error(
-      "Invalid MindEase ID or password."
-    );
+  if (!data.user || !data.token) {
+    throw new Error("Login response was incomplete.");
   }
 
-  const saltBuffer =
-    base64ToArrayBuffer(user.salt);
+  saveToken(data.token);
+  saveLastMindEaseId(data.user.id);
 
-  const passwordHash =
-    await hashPassword(
-      password,
-      saltBuffer
-    );
-
-  if (
-    passwordHash !==
-    user.passwordHash
-  ) {
-    throw new Error(
-      "Invalid MindEase ID or password."
-    );
-  }
-
-  // Create login session
-  sessionStorage.setItem(
-    SESSION_KEY,
-    user.id
-  );
-
-  return {
-    id: user.id,
-    createdAt: user.createdAt,
-  };
+  return data.user;
 };
 
-/* ------------------------------------------------ */
-/* GET CURRENT USER                                 */
-/* ------------------------------------------------ */
+// ------------------------------------------
+// FORGOT MINDEASE ID
+// ------------------------------------------
 
-export const getCurrentUser =
-  (): AuthUser | null => {
-
-    const sessionId =
-      sessionStorage.getItem(
-        SESSION_KEY
-      );
-
-    if (!sessionId) {
-      return null;
+export const requestIdRecovery = async (email: string) => {
+  return apiRequest<MessageResponse>(
+    "/api/auth/recover-id/send-otp",
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
     }
+  );
+};
 
-    const users = getUsers();
-
-    const user = users.find(
-      (storedUser) =>
-        storedUser.id === sessionId
-    );
-
-    if (!user) {
-      sessionStorage.removeItem(
-        SESSION_KEY
-      );
-
-      return null;
+export const verifyIdRecovery = async (
+  email: string,
+  otp: string
+) => {
+  return apiRequest<MessageResponse>(
+    "/api/auth/recover-id/verify",
+    {
+      method: "POST",
+      body: JSON.stringify({ email, otp }),
     }
+  );
+};
 
-    return {
-      id: user.id,
-      createdAt: user.createdAt,
-    };
-  };
+// ------------------------------------------
+// FORGOT PASSWORD
+// ------------------------------------------
 
-/* ------------------------------------------------ */
-/* LOGOUT                                           */
-/* ------------------------------------------------ */
+export const requestPasswordReset = async (email: string) => {
+  return apiRequest<MessageResponse>(
+    "/api/auth/password-reset/send-otp",
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }
+  );
+};
+
+export const confirmPasswordReset = async (
+  email: string,
+  otp: string,
+  password: string
+) => {
+  return apiRequest<MessageResponse>(
+    "/api/auth/password-reset/confirm",
+    {
+      method: "POST",
+      body: JSON.stringify({ email, otp, password }),
+    }
+  );
+};
+
+// ------------------------------------------
+// CURRENT USER
+// ------------------------------------------
+
+export const getCurrentUser = async (): Promise<AuthUser | null> => {
+  const token = getToken();
+
+  if (!token) return null;
+
+  try {
+    const data = await apiRequest<{
+      success: boolean;
+      user: AuthUser;
+    }>("/api/auth/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    saveLastMindEaseId(data.user.id);
+    return data.user;
+  } catch {
+    clearToken();
+    return null;
+  }
+};
+
+// ------------------------------------------
+// LOGOUT
+// ------------------------------------------
 
 export const logoutUser = () => {
-  sessionStorage.removeItem(
-    SESSION_KEY
-  );
+  clearToken();
+};
+
+// ------------------------------------------
+// AUTHENTICATED API REQUEST HELPER
+// ------------------------------------------
+
+export const authenticatedRequest = async <T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> => {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("Please log in to continue.");
+  }
+
+  return apiRequest<T>(endpoint, {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };

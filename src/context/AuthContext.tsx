@@ -1,3 +1,4 @@
+
 import {
   createContext,
   useContext,
@@ -17,7 +18,11 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   login: (id: string, password: string) => Promise<AuthUser>;
-  register: (password: string) => Promise<AuthUser>;
+  register: (
+    email: string,
+    password: string,
+    registrationCode?: string
+  ) => Promise<AuthUser>;
   logout: () => void;
 }
 
@@ -34,10 +39,25 @@ export const AuthProvider = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
+    let active = true;
 
-    setUser(currentUser);
-    setLoading(false);
+    const restoreSession = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+
+        if (active) setUser(currentUser);
+      } catch {
+        if (active) setUser(null);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    restoreSession();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const login = async (
@@ -45,23 +65,22 @@ export const AuthProvider = ({
     password: string
   ): Promise<AuthUser> => {
     const loggedInUser = await loginUserService(id, password);
-
-    // IMPORTANT:
-    // This immediately updates the Navbar and protected routes.
     setUser(loggedInUser);
-
     return loggedInUser;
   };
 
   const register = async (
-    password: string
+    email: string,
+    password: string,
+    registrationCode?: string
   ): Promise<AuthUser> => {
-    const newUser = await registerUserService(password);
+    const newUser = await registerUserService(
+      email,
+      password,
+      registrationCode
+    );
 
-    // IMPORTANT:
-    // Registration automatically logs the user in.
     setUser(newUser);
-
     return newUser;
   };
 

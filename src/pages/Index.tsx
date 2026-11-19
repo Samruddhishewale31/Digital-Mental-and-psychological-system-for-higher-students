@@ -11,11 +11,20 @@ import {
   Camera,
   AudioLines,
   Brain,
+  Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-illustration.png";
 
 const features = [
+
+   {
+  icon: Heart,
+  title: "Daily Mood Tracker",
+  desc: "Record your daily emotions, reflect on your experiences, and understand your mood patterns.",
+  link: "/mood-tracker",
+},
+
   {
     icon: ClipboardCheck,
     title: "Self Assessment",
@@ -83,7 +92,6 @@ const features = [
     link: "/counselling",
   },
 ];
-
 const container = {
   hidden: {},
   show: {

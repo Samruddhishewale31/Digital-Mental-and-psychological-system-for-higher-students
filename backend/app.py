@@ -4,6 +4,7 @@ from flask_cors import CORS
 import os
 import tensorflow as tf
 import joblib
+import traceback
 
 from utils.voice_utils import predict_voice_emotion
 from utils.face_utils import predict_face_emotion
@@ -70,26 +71,30 @@ except Exception as e:
 # ==========================================
 
 try:
+    print("\nLoading voice model...")
 
-    voice_model = joblib.load(
-        VOICE_MODEL_PATH
-    )
+    voice_model = joblib.load(VOICE_MODEL_PATH)
+    print("Voice model loaded:", type(voice_model))
 
-    voice_scaler = joblib.load(
-        VOICE_SCALER_PATH
-    )
+    print("\nLoading voice scaler...")
+
+    voice_scaler = joblib.load(VOICE_SCALER_PATH)
+    print("Voice scaler loaded:", type(voice_scaler))
+
+    print("\nLoading voice label encoder...")
 
     voice_label_encoder = joblib.load(
         VOICE_LABEL_ENCODER_PATH
     )
+    print("Voice label encoder loaded:", type(voice_label_encoder))
 
-    print("Voice model loaded successfully")
-    print("Voice label encoder loaded successfully")
-
+    print("\nAll voice model files loaded successfully!")
 
 except Exception as e:
-
-    print("Voice Model Error:", e)
+    print("\n========== VOICE MODEL LOADING ERROR ==========")
+    traceback.print_exc()
+    print("Error:", repr(e))
+    print("================================================")
 
 
 
@@ -493,11 +498,8 @@ if __name__=="__main__":
 
 
     app.run(
-
-        host="0.0.0.0",
-
-        port=5000,
-
-        debug=True
-
-    )
+    host="0.0.0.0",
+    port=5000,
+    debug=False,
+    use_reloader=False
+)

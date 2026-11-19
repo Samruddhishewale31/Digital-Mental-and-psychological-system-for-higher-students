@@ -40,59 +40,50 @@ const SelfAssessment = () => {
 
   const [submitted, setSubmitted] = useState(false);
 
-  /* =====================================================
-     LOAD PREVIOUS ASSESSMENT STATE
-  ===================================================== */
+   useEffect(() => {
+    // 1. Start a fresh assessment after informed consent
+    if (
+      location.state?.startFreshAssessment ||
+      location.state?.assessmentType === "self"
+    ) {
+      setStart(true);
+      setCurrent(0);
+      setAnswers(Array(questions.length).fill(-1));
+      setSubmitted(false);
 
-  useEffect(() => {
+      // Remove any previous assessment result
+      localStorage.removeItem("assessmentSubmitted");
+      localStorage.removeItem("assessmentResult");
 
-  // 1. Fresh assessment after informed consent
-  if (location.state?.assessmentType === "self") {
+      return;
+    }
 
-    setAnswers(Array(questions.length).fill(-1));
+    // 2. Preserve the complete-analysis flow
+    if (location.state?.fromComplete) {
+      setStart(true);
+      setCurrent(0);
+      setAnswers(Array(questions.length).fill(-1));
+      setSubmitted(false);
+      return;
+    }
+
+    // 3. Returning from a recommended wellness feature
+    if (location.state?.fromAssessment) {
+      const hasPreviousResult =
+        localStorage.getItem("assessmentSubmitted") === "true" &&
+        localStorage.getItem("assessmentResult") !== null;
+
+      setStart(true);
+      setSubmitted(hasPreviousResult);
+      return;
+    }
+
+    // 4. Normal assessment entry: show the introduction
+    setStart(false);
     setCurrent(0);
+    setAnswers(Array(questions.length).fill(-1));
     setSubmitted(false);
-    setStart(true);
-
-    localStorage.removeItem("assessmentSubmitted");
-    localStorage.removeItem("assessmentResult");
-
-    navigate("/assessment", {
-      replace: true,
-      state: null,
-    });
-
-    return;
-  }
-
-  // 2. Complete analysis flow
-  if (location.state?.fromComplete) {
-
-    setStart(true);
-    setSubmitted(false);
-
-    return;
-  }
-
-  // 3. Returning from a recommended wellness feature
-  if (location.state?.fromAssessment) {
-
-    const hasPreviousResult =
-      localStorage.getItem("assessmentSubmitted") === "true" &&
-      localStorage.getItem("assessmentResult") !== null;
-
-    setStart(true);
-    setSubmitted(hasPreviousResult);
-
-    return;
-  }
-
-  // 4. Normal assessment entry
-  setStart(true);
-  setSubmitted(false);
-
-}, [location.state, navigate]);
-
+  }, [location.key]);
 
   /* =====================================================
      SELECT ANSWER
